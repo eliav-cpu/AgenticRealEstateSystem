@@ -1,0 +1,12 @@
+# Core LLM Integration
+groq>=0.4.0
+
+# Data Generation
+duckdb>=0.9.0
+
+# Observability (Optional)
+langfuse>=2.0.0
+logfire>=0.15.0
+
+# Type Checking
+typing-extensions>=4.0.0

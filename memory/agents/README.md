@@ -28,4 +28,4 @@ memory/agents/
 5. **Cleanup**: Remove directories for terminated agents periodically
 
 ## Last Updated
-2025-07-28T21:41:18.039Z
+2025-11-11T17:24:46.739Z

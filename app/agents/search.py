@@ -147,18 +147,82 @@ def execute_property_search(
     logger.info(f"Search executed: {len(mock_properties)} properties found")
     return result
 
-def transfer_to_property_agent() -> Command:
+def handoff_to_property(
+    properties: List[Property],
+    reason: str,
+    state: Annotated[SearchState, InjectedState]
+) -> Command:
     """
-    Ferramenta de handoff nativa do LangGraph para transferir para o agente de propriedades.
-    
-    Usa Command do LangGraph em vez de ferramentas do LangChain.
+    Native handoff tool to transfer to property agent with full context.
+
+    Args:
+        properties: List of properties to analyze
+        reason: Reason for handoff
+        state: Current conversation state
+
+    Returns:
+        Command to transition to property_agent with preserved context
     """
+    from .router import get_router
+
+    router = get_router()
+    logger = get_logger()
+
+    preserved_context = {
+        "search_results": {
+            "properties": [p.model_dump() for p in properties],
+            "total_count": len(properties)
+        },
+        "handoff_reason": reason,
+        "from_agent": "search_agent",
+        "handoff_trigger": "properties_found"
+    }
+
+    logger.info(f"🔄 Handoff to property_agent: {reason}")
+
     return Command(
         goto="property_agent",
         update={
-            "context": {
-                "handoff_reason": "Properties found, transferring for detailed analysis"
-            }
+            "context": preserved_context,
+            "search_results": preserved_context["search_results"]
+        }
+    )
+
+def handoff_to_scheduling(
+    selected_property: Property,
+    reason: str,
+    state: Annotated[SearchState, InjectedState]
+) -> Command:
+    """
+    Native handoff tool to transfer to scheduling agent with property context.
+
+    Args:
+        selected_property: Property to schedule visit for
+        reason: Reason for handoff
+        state: Current conversation state
+
+    Returns:
+        Command to transition to scheduling_agent with preserved context
+    """
+    from .router import get_router
+
+    router = get_router()
+    logger = get_logger()
+
+    preserved_context = {
+        "selected_property": selected_property.model_dump(),
+        "handoff_reason": reason,
+        "from_agent": "search_agent",
+        "handoff_trigger": "scheduling_requested"
+    }
+
+    logger.info(f"🔄 Handoff to scheduling_agent: {reason}")
+
+    return Command(
+        goto="scheduling_agent",
+        update={
+            "context": preserved_context,
+            "selected_property": preserved_context["selected_property"]
         }
     )
 
@@ -166,41 +230,56 @@ def transfer_to_property_agent() -> Command:
 SEARCH_TOOLS = [
     interpret_search_query,
     execute_property_search,
-    transfer_to_property_agent
+    handoff_to_property,
+    handoff_to_scheduling
 ]
 
 def search_agent_node(state: SearchState) -> Command:
     """
     Nó principal do agente de busca no grafo LangGraph.
-    
+
     Implementa a lógica de decisão para handoffs baseado no contexto.
+    Uses intelligent router for handoff decisions.
     """
+    from .router import get_router
+
     logger = get_logger()
+    router = get_router()
     messages = state.get("messages", [])
-    
+
     if not messages:
         return Command(
             update={
                 "messages": [{
                     "role": "assistant",
-                    "content": "Olá! Sou seu assistente de busca de imóveis. Como posso ajudá-lo?"
+                    "content": "Hello! I'm your property search assistant. How can I help you find your ideal property?"
                 }]
             }
         )
-    
+
     last_message = messages[-1]
     user_query = last_message.get("content", "")
-    
+
+    # Check for scheduling intent with router
+    routing_decision = router.route(user_query, state)
+    if routing_decision.intent.value == "scheduling" and state.get("search_results"):
+        # Direct handoff to scheduling if intent detected
+        return handoff_to_scheduling(
+            selected_property=Property(**state["search_results"]["properties"][0]),
+            reason="User wants to schedule visit",
+            state=state
+        )
+
     try:
         # Interpretar consulta
         intent = interpret_search_query(user_query, state)
-        
+
         # Atualizar estado
         updated_state = {
             "search_intent": intent,
-            "context": {"last_query": user_query}
+            "context": {"last_query": user_query, "current_agent": "search_agent"}
         }
-        
+
         # Verificar se precisa de clarificação
         if intent.clarification_needed:
             return Command(
@@ -212,11 +291,11 @@ def search_agent_node(state: SearchState) -> Command:
                     }]
                 }
             )
-        
+
         # Executar busca
         search_results = execute_property_search(intent.criteria, state)
-        updated_state["search_results"] = search_results
-        
+        updated_state["search_results"] = search_results.model_dump()
+
         # Verificar se encontrou propriedades
         if search_results.is_empty:
             return Command(
@@ -224,31 +303,25 @@ def search_agent_node(state: SearchState) -> Command:
                     **updated_state,
                     "messages": [{
                         "role": "assistant",
-                        "content": "Não encontrei propriedades com esses critérios. Poderia tentar com critérios mais amplos?"
+                        "content": "No properties found with those criteria. Would you like to try with broader criteria?"
                     }]
                 }
             )
-        
-        # Transferir para agente de propriedades para análise detalhada
-        return Command(
-            goto="property_agent",
-            update={
-                **updated_state,
-                "context": {
-                    **updated_state["context"],
-                    "handoff_reason": f"Found {len(search_results.properties)} properties",
-                    "search_completed": True
-                }
-            }
+
+        # Use handoff tool to transfer to property agent
+        return handoff_to_property(
+            properties=search_results.properties,
+            reason=f"Found {len(search_results.properties)} properties for analysis",
+            state=state
         )
-        
+
     except Exception as e:
-        logger.error(f"Erro no agente de busca: {e}")
+        logger.error(f"Error in search agent: {e}")
         return Command(
             update={
                 "messages": [{
                     "role": "assistant",
-                    "content": "Ocorreu um erro durante a busca. Poderia tentar novamente?"
+                    "content": "An error occurred during the search. Could you try again?"
                 }]
             }
         )

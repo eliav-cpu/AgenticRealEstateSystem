@@ -76,24 +76,50 @@ graph LR
 
 ### Installation
 
+#### Quick Setup (Recommended)
+
 ```bash
 # Clone repository
 git clone <repo-url>
-cd Agentic-Real-Estate
+cd AgenticRealEstateSystem
 
+# Run automated setup script
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+
+# The script will:
+# - Install UV if not present
+# - Create virtual environment
+# - Install all dependencies
+# - Setup pre-commit hooks
+# - Verify installation
+```
+
+#### Manual Installation with UV
+
+```bash
+# Install UV (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh  # Linux/Mac
+# Or: irm https://astral.sh/uv/install.ps1 | iex  # Windows PowerShell
+
+# Install dependencies
+uv sync
+
+# Verify installation
+uv run python -c "import pydantic_ai; import langgraph_swarm; print('✓ All packages OK')"
+```
+
+#### Alternative: pip Installation (Not Recommended)
+
+```bash
 # Create virtual environment
 python -m venv .venv
 
 # Activate virtual environment
-# On Windows:
-.venv\Scripts\activate
-# On Linux/Mac:
-source .venv/bin/activate
+source .venv/bin/activate  # Linux/Mac
+.venv\Scripts\activate     # Windows
 
-# Install dependencies using uv (recommended)
-uv sync
-
-# Or install with pip
+# Install with pip
 pip install -e .
 ```
 
@@ -114,10 +140,13 @@ LANGSMITH_API_KEY=your-langsmith-key (optional)
 
 ### Core Dependencies
 
+This project uses **UV** for ultra-fast dependency management (10-100x faster than pip).
+
 ```toml
 # AI Framework
 "pydantic-ai[logfire,openrouter]>=0.0.14"  # Agents with strong typing
 "langgraph>=0.2.0"                         # Graph orchestration
+"langgraph-swarm>=0.0.11"                  # Swarm orchestration
 "langgraph-checkpoint>=2.0.0"              # Memory management
 
 # Observability
@@ -130,6 +159,33 @@ LANGSMITH_API_KEY=your-langsmith-key (optional)
 "httpx>=0.27.0"                            # HTTP client
 "openai>=1.40.0"                           # OpenAI compatibility
 ```
+
+### UV Package Management
+
+```bash
+# Add new dependency
+uv add package-name
+
+# Add development dependency
+uv add --dev pytest-mock
+
+# Add with extras
+uv add "package[extra1,extra2]>=1.0.0"
+
+# Update dependencies
+uv sync --upgrade
+
+# Remove dependency
+uv remove package-name
+
+# Run Python scripts
+uv run python main.py
+
+# Run tests
+uv run pytest tests/
+```
+
+**📖 See [UV Guide](docs/UV_GUIDE.md) for comprehensive documentation**
 
 ## 🎮 System Usage
 
@@ -339,19 +395,21 @@ Agentic-Real-Estate/
 ### Running Tests
 
 ```bash
-# Install test dependencies
-uv add --dev pytest pytest-asyncio
-
-# Run all tests
-python -m pytest tests/
+# Run all tests with UV
+uv run pytest tests/
 
 # Run specific test categories
-python -m pytest tests/agents/          # Agent tests
-python -m pytest tests/orchestration/   # Swarm tests
-python -m pytest tests/api/            # API tests
+uv run pytest tests/agents/          # Agent tests
+uv run pytest tests/orchestration/   # Swarm tests
+uv run pytest tests/api/            # API tests
 
 # Run with coverage
-python -m pytest --cov=app tests/
+uv run pytest --cov=app tests/
+
+# Run with markers
+uv run pytest -m unit              # Unit tests only
+uv run pytest -m integration       # Integration tests only
+uv run pytest -m "not slow"        # Exclude slow tests
 ```
 
 ### Development Workflow
@@ -361,13 +419,25 @@ python -m pytest --cov=app tests/
 export DEBUG=true
 
 # Start development server with auto-reload
-python api_server.py
+uv run python api_server.py
+
+# Or use uvicorn directly
+uv run uvicorn api_server:app --reload --host 0.0.0.0 --port 8000
 
 # Monitor logs in real-time
 tail -f logs/agentic_real_estate.log
 
 # Access interactive documentation
 open http://localhost:8000/api/docs
+
+# Code quality checks
+uv run ruff check .               # Linting
+uv run black .                    # Formatting
+uv run mypy app/                  # Type checking
+
+# Update dependencies
+uv sync --upgrade                 # Update all
+uv add --upgrade package-name     # Update specific package
 ```
 
 ## 🚀 Production Deployment
@@ -460,6 +530,14 @@ curl http://localhost:8000/dashboard/api/metrics
 ```
 
 ## 📚 Additional Documentation
+
+### UV Package Manager (NEW! 🚀)
+
+- [⚡ Quick Start Guide](docs/UV_QUICK_START.md) - Get started in 30 seconds
+- [📖 Complete UV Guide](docs/UV_GUIDE.md) - Comprehensive documentation
+- [📋 Migration Summary](docs/UV_MIGRATION_SUMMARY.md) - What changed and why
+
+### System Documentation
 
 - [🏗️ System Architecture](docs/LANGGRAPH_SWARM_VERIFICATION_SUMMARY.md)
 - [🔧 Complete System Improvements](docs/COMPLETE_SYSTEM_IMPROVEMENTS_SUMMARY.md)

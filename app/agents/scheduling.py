@@ -19,7 +19,87 @@ from langgraph.prebuilt import InjectedState
 from pydantic_ai.providers.openrouter import OpenRouterProvider
 
 from ..utils.logging import get_logger, log_handoff, log_performance
+from ..utils.datetime_context import get_agent_datetime_context, format_datetime_context_for_agent
 from config.settings import get_settings
+
+
+def handoff_to_search(
+    reason: str,
+    user_preferences: Optional[Dict[str, Any]] = None,
+    state: Optional[Dict[str, Any]] = None
+) -> Command:
+    """
+    Native handoff tool to transfer to search agent with preserved preferences.
+
+    Args:
+        reason: Reason for handoff
+        user_preferences: User search preferences to preserve
+        state: Current conversation state
+
+    Returns:
+        Command to transition to search_agent with preserved context
+    """
+    from .router import get_router
+
+    router = get_router()
+    logger = get_logger()
+
+    preserved_context = {
+        "user_preferences": user_preferences or {},
+        "handoff_reason": reason,
+        "from_agent": "scheduling_agent",
+        "handoff_trigger": "new_search_requested"
+    }
+
+    logger.info(f"🔄 Handoff to search_agent: {reason}")
+
+    return Command(
+        goto="search_agent",
+        update={
+            "context": preserved_context,
+            "current_agent": "search_agent"
+        }
+    )
+
+
+def handoff_to_property(
+    selected_property: Optional[Dict[str, Any]],
+    reason: str,
+    state: Optional[Dict[str, Any]] = None
+) -> Command:
+    """
+    Native handoff tool to transfer to property agent with property context.
+
+    Args:
+        selected_property: Property context to preserve
+        reason: Reason for handoff
+        state: Current conversation state
+
+    Returns:
+        Command to transition to property_agent with preserved context
+    """
+    from .router import get_router
+
+    router = get_router()
+    logger = get_logger()
+
+    preserved_context = {
+        "selected_property": selected_property,
+        "handoff_reason": reason,
+        "from_agent": "scheduling_agent",
+        "handoff_trigger": "property_analysis_requested"
+    }
+
+    logger.info(f"🔄 Handoff to property_agent: {reason}")
+
+    return Command(
+        goto="property_agent",
+        update={
+            "context": preserved_context,
+            "selected_property": selected_property,
+            "current_agent": "property_agent"
+        }
+    )
 
 class TimeParsingResult(BaseModel):
     """Resultado da análise temporal."""
@@ -85,48 +165,53 @@ class SchedulingAgent:
 
     def _create_agent(self) -> Agent:
         """Cria o agente PydanticAI com ferramentas especializadas."""
-        
+
+        # Get datetime context for system prompt
+        datetime_context = format_datetime_context_for_agent()
+
         agent = Agent(
             model=self.model,
-            system_prompt="""Você é o Agente de Agendamento, especialista em inteligência temporal avançada.
-            
-            RESPONSABILIDADES:
-            1. INTERPRETAR referências temporais em linguagem natural
-            2. VALIDAR horários comerciais (segunda a sexta, 9h às 18h)
-            3. CALCULAR datas relativas (amanhã, próxima semana, etc.)
-            4. SUGERIR alternativas quando necessário
-            5. AGENDAR visitas a propriedades
-            
-            REGRAS TEMPORAIS:
-            - Horário comercial: Segunda a Sexta, 9:00 às 18:00
-            - Não agendar fins de semana ou feriados
-            - Considerar fuso horário Brasil (America/Sao_Paulo)
-            - Sugerir horários próximos ao solicitado se inválido
-            
-            INTERPRETAÇÃO DE LINGUAGEM NATURAL:
-            - "amanhã" = próximo dia útil
-            - "próxima semana" = segunda-feira da próxima semana
-            - "sexta que vem" = próxima sexta-feira
-            - "depois de amanhã" = dia após amanhã se for dia útil
-            - "pela manhã" = entre 9h e 12h
-            - "à tarde" = entre 13h e 18h
-            
-            VALIDAÇÕES:
-            - Data não pode ser no passado
-            - Horário deve estar no range comercial
-            - Considerar apenas dias úteis
-            
+            system_prompt=f"""You are the Scheduling Agent, expert in advanced temporal intelligence.
+
+            {datetime_context}
+
+            RESPONSIBILITIES:
+            1. INTERPRET temporal references in natural language
+            2. VALIDATE business hours (Monday to Friday, 9 AM to 6 PM)
+            3. CALCULATE relative dates (tomorrow, next week, etc.)
+            4. SUGGEST alternatives when necessary
+            5. SCHEDULE property visits
+
+            TEMPORAL RULES:
+            - Business hours: Monday to Friday, 9:00 AM to 6:00 PM
+            - No scheduling on weekends or holidays
+            - Consider timezone: America/Sao_Paulo
+            - Suggest nearby times if requested time is invalid
+
+            NATURAL LANGUAGE INTERPRETATION:
+            - "tomorrow" = next business day
+            - "next week" = Monday of next week
+            - "next Friday" = upcoming Friday
+            - "day after tomorrow" = day after tomorrow if business day
+            - "in the morning" = between 9 AM and 12 PM
+            - "in the afternoon" = between 1 PM and 6 PM
+
+            VALIDATIONS:
+            - Date cannot be in the past
+            - Time must be within business hours
+            - Consider only business days
+
             HANDOFFS:
-            - Para property_agent: quando usuário quer ver mais propriedades
-            - Para search_agent: quando usuário quer nova busca
-            
-            Sempre responda em português brasileiro de forma clara e amigável.
+            - To property_agent: when user wants to see more properties
+            - To search_agent: when user wants new search
+
+            Always respond in English in a clear and friendly manner.
             """,
         )
 
         # Adicionar ferramentas especializadas
         self._add_tools(agent)
-        
+
         return agent
 
     def _add_tools(self, agent: Agent) -> None:
@@ -378,25 +463,24 @@ class SchedulingAgent:
 async def scheduling_agent_node(state: Annotated[Dict[str, Any], InjectedState]) -> Command:
     """
     Nó do agente de agendamento no LangGraph.
-    
+
     Especializado em agendar visitas e gerenciar calendário.
-    Pode fazer handoff de volta para outros agentes conforme necessário.
+    Uses intelligent router and handoff tools for transitions.
+    Integrates with datetime_context for temporal awareness.
     """
+    from .router import get_router
+
     logger = get_logger("scheduling_agent")
+    router = get_router()
     messages = state.get("messages", [])
-    
+
     # Verificar se tem propriedade selecionada
     selected_property = state.get("context", {}).get("selected_property")
     if not selected_property:
-        log_handoff("scheduling_agent", "property_agent", "No property selected for scheduling")
-        return Command(
-            goto="property_agent",
-            update={
-                "current_agent": "property_agent",
-                "context": {
-                    "handoff_reason": "No property selected for scheduling"
-                }
-            }
+        return handoff_to_property(
+            selected_property=None,
+            reason="No property selected for scheduling",
+            state=state
         )
     
     # Inicializar agente
@@ -461,19 +545,23 @@ Perfeito! Vou agendar sua visita para o imóvel selecionado.
 Qual horário prefere?
         """.strip()
         
+        # Use router for intent detection
+        routing_decision = router.route(user_content, state)
+
         # Detectar necessidade de voltar para busca
-        if any(word in user_content.lower() for word in ["outras", "mais", "diferentes", "buscar", "procurar"]):
-            log_handoff("scheduling_agent", "search_agent", "User wants to search for more properties")
-            return Command(
-                goto="search_agent",
-                update={
-                    "current_agent": "search_agent",
-                    "context": {
-                        "handoff_reason": "User wants new search after scheduling",
-                        "previous_scheduling": True
-                    },
-                    "messages": [{"role": "assistant", "content": scheduling_response}]
-                }
+        if routing_decision.intent.value == "search":
+            return handoff_to_search(
+                reason="User wants to search for more properties after scheduling",
+                user_preferences=state.get("context", {}).get("user_preferences"),
+                state=state
+            )
+
+        # Detectar necessidade de ver mais detalhes da propriedade
+        if routing_decision.intent.value == "property_analysis":
+            return handoff_to_property(
+                selected_property=selected_property,
+                reason="User wants more property details",
+                state=state
             )
         
         return Command(
@@ -494,5 +582,6 @@ Qual horário prefere?
 
 # Ferramentas específicas do agente (para compatibilidade com LangGraph)
 SCHEDULING_TOOLS = [
-    # Ferramentas serão definidas aqui se necessário para integração com ToolNode
+    handoff_to_search,
+    handoff_to_property
 ] 

@@ -18,6 +18,85 @@ from ..utils.logging import get_logger, log_handoff, log_performance
 from config.settings import get_settings
 
 
+def handoff_to_search(
+    reason: str,
+    user_preferences: Optional[Dict[str, Any]] = None,
+    state: Optional[Dict[str, Any]] = None
+) -> Command:
+    """
+    Native handoff tool to transfer to search agent with preserved preferences.
+
+    Args:
+        reason: Reason for handoff
+        user_preferences: User search preferences to preserve
+        state: Current conversation state
+
+    Returns:
+        Command to transition to search_agent with preserved context
+    """
+    from .router import get_router
+
+    router = get_router()
+    logger = get_logger()
+
+    preserved_context = {
+        "user_preferences": user_preferences or {},
+        "handoff_reason": reason,
+        "from_agent": "property_agent",
+        "handoff_trigger": "new_search_requested"
+    }
+
+    logger.info(f"🔄 Handoff to search_agent: {reason}")
+
+    return Command(
+        goto="search_agent",
+        update={
+            "context": preserved_context,
+            "current_agent": "search_agent"
+        }
+    )
+
+
+def handoff_to_scheduling(
+    selected_property: Property,
+    reason: str,
+    state: Optional[Dict[str, Any]] = None
+) -> Command:
+    """
+    Native handoff tool to transfer to scheduling agent with property context.
+
+    Args:
+        selected_property: Property to schedule visit for
+        reason: Reason for handoff
+        state: Current conversation state
+
+    Returns:
+        Command to transition to scheduling_agent with preserved context
+    """
+    from .router import get_router
+
+    router = get_router()
+    logger = get_logger()
+
+    preserved_context = {
+        "selected_property": selected_property.model_dump() if isinstance(selected_property, Property) else selected_property,
+        "handoff_reason": reason,
+        "from_agent": "property_agent",
+        "handoff_trigger": "scheduling_requested"
+    }
+
+    logger.info(f"🔄 Handoff to scheduling_agent: {reason}")
+
+    return Command(
+        goto="scheduling_agent",
+        update={
+            "context": preserved_context,
+            "selected_property": preserved_context["selected_property"],
+            "current_agent": "scheduling_agent"
+        }
+    )
+
+
 class PropertyAnalysis(BaseModel):
     """Modelo para análise de propriedades."""
     property_highlights: List[str] = Field(description="Pontos principais do imóvel")
@@ -127,48 +206,50 @@ class PropertyAgent:
 async def property_agent_node(state: Annotated[Dict[str, Any], InjectedState]) -> Command:
     """
     Nó principal do agente de propriedades no grafo LangGraph.
-    
+
     Implementa a lógica de decisão para handoffs baseado no contexto.
+    Uses intelligent router and handoff tools for transitions.
     """
+    from .router import get_router
+
     logger = get_logger("property_agent")
+    router = get_router()
     messages = state.get("messages", [])
-    
+
     if not messages:
         return Command(
             update={
                 "messages": [{
                     "role": "assistant",
-                    "content": "Olá! Sou Emma, especialista em análise de propriedades. Como posso ajudá-lo?"
+                    "content": "Hello! I'm Emma, property analysis specialist. How can I help you?"
                 }]
             }
         )
-    
+
     last_message = messages[-1]
-    user_query = last_message.get("content", "").lower()
-    
-    # Detectar intenções de handoff
-    if any(word in user_query for word in ["agendar", "visita", "horário", "marcar"]):
-        log_handoff("property_agent", "scheduling_agent", "User wants to schedule visit")
-        return Command(
-            goto="scheduling_agent",
-            update={
-                "context": {
-                    "handoff_reason": "User requested visit scheduling",
-                    "from_agent": "property_agent"
-                }
-            }
-        )
-    
-    if any(word in user_query for word in ["buscar", "procurar", "encontrar", "mais opções"]):
-        log_handoff("property_agent", "search_agent", "User wants new search")
-        return Command(
-            goto="search_agent",
-            update={
-                "context": {
-                    "handoff_reason": "User requested new search",
-                    "from_agent": "property_agent"
-                }
-            }
+    user_query = last_message.get("content", "")
+
+    # Use router for intelligent intent detection
+    routing_decision = router.route(user_query, state)
+
+    # Detectar intenções de handoff com router
+    if routing_decision.intent.value == "scheduling":
+        # Get property to schedule
+        selected_property = state.get("context", {}).get("selected_property") or \
+                          (state.get("search_results", {}).get("properties", [{}])[0] if state.get("search_results") else None)
+
+        if selected_property:
+            return handoff_to_scheduling(
+                selected_property=Property(**selected_property) if isinstance(selected_property, dict) else selected_property,
+                reason="User wants to schedule property visit",
+                state=state
+            )
+
+    if routing_decision.intent.value == "search":
+        return handoff_to_search(
+            reason="User wants to search for more properties",
+            user_preferences=state.get("context", {}).get("user_preferences"),
+            state=state
         )
     
     # Processar análise de propriedades
@@ -270,7 +351,6 @@ O que gostaria de fazer?
 
 # Ferramentas exportadas para integração
 PROPERTY_TOOLS = [
-    "analyze_property",
-    "compare_properties", 
-    "generate_personalized_description"
+    handoff_to_search,
+    handoff_to_scheduling
 ]

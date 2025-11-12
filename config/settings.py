@@ -86,19 +86,50 @@ class ModelConfig(BaseSettings):
     scheduling_model: str = Field(default="mistralai/mistral-7b-instruct:free")
 
 
+class DataLayerConfig(BaseSettings):
+    """Configurações da camada de dados."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="DATA_",
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore"
+    )
+
+    # Data Mode: mock or real
+    mode: str = Field(
+        default="mock",
+        description="Data source mode: 'mock' for development, 'real' for production"
+    )
+
+    # Mock data settings
+    mock_data_path: str = Field(
+        default="app/data/fixtures",
+        description="Path to mock data JSON files"
+    )
+
+    @validator("mode")
+    def validate_mode(cls, v):
+        allowed = {"mock", "real"}
+        v_lower = v.lower()
+        if v_lower not in allowed:
+            raise ValueError(f"Data mode must be one of {allowed}")
+        return v_lower
+
+
 class APIConfig(BaseSettings):
     """Configurações de APIs externas."""
-    
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=False,
         extra="ignore"  # Ignorar variáveis extras
     )
-    
+
     # OpenRouter
     openrouter_key: str = Field(default="", alias="OPENROUTER_API_KEY")
     openrouter_url: str = Field(default="https://openrouter.ai/api/v1")
-    
+
     # RentCast API - Configuração principal
     rentcast_api_key: str = Field(
         default="01e1101b77c54f1b8e804ba212a4ccfc",
@@ -108,7 +139,7 @@ class APIConfig(BaseSettings):
         default="https://api.rentcast.io/v1",
         description="URL base da API RentCast"
     )
-    
+
     # Google Calendar
     google_credentials_path: str = Field(default="credentials.json")
     google_token_path: str = Field(default="token.json")
@@ -116,10 +147,14 @@ class APIConfig(BaseSettings):
         default=None,
         description="Credenciais do Google Calendar (JSON)"
     )
-    
+    google_calendar_id: str = Field(
+        default="primary",
+        description="ID do calendário do Google Calendar"
+    )
+
     # Outras APIs de imóveis
     freewebapi_key: Optional[str] = Field(default=None, alias="FREEWEBAPI_KEY")
-    
+
     # Rate limiting
     max_requests_per_minute: int = Field(default=60, description="Máximo de requests por minuto")
     request_timeout: int = Field(default=30, description="Timeout de requests em segundos")
@@ -255,6 +290,7 @@ class Settings(BaseSettings):
     debug: bool = Field(default=True)
     
     # Sub-configurações
+    data_layer: DataLayerConfig = Field(default_factory=DataLayerConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
     redis: RedisConfig = Field(default_factory=RedisConfig)
     duckdb: DuckDBConfig = Field(default_factory=DuckDBConfig)
