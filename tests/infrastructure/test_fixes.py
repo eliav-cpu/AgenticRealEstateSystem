@@ -31,9 +31,9 @@ def test_duckdb_connection():
     
     try:
         from app.database.schema import PropertyDB
-        
-        # Test connection
-        db = PropertyDB("test_properties.duckdb")
+
+        # Test connection (use write mode for test database creation)
+        db = PropertyDB("test_properties.duckdb", read_only=False)
         count = db.get_property_count()
         print(f"DuckDB connection successful. Property count: {count}")
         

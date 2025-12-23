@@ -1,9 +1,13 @@
 """
-Orquestrador LangGraph-Swarm com Agentes Inteligentes
+Orquestrador LangGraph-Swarm com Agentes PydanticAI usando Groq
 
-Implementação da arquitetura swarm descentralizada com agentes inteligentes.
-Integração PydanticAI + LangGraph para respostas dinâmicas.
-Fallback inteligente com Ollama para funcionar sem chaves de API.
+Implementação da arquitetura swarm com:
+- Groq como LLM provider (modelo openai/gpt-oss-120b)
+- PydanticAI para agentes inteligentes
+- LangGraph-Swarm para orquestração
+- Supervisor para avaliar respostas antes de enviar ao usuário
+- Manager para análise de logs em tempo real
+- Fallback inteligente com Ollama
 """
 
 from typing import Dict, Any, List, Optional, AsyncIterator, Literal
@@ -12,16 +16,16 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.types import Command
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 from pydantic_ai import Agent
-from pydantic_ai.models.openai import OpenAIModel
-from pydantic_ai.providers.openrouter import OpenRouterProvider
-from langgraph.checkpoint.memory import MemorySaver  # 🔥 NOVO: Checkpointer para memória
-from langgraph.store.memory import InMemoryStore  # 🔥 NOVO: Store para memória de longo prazo
+from pydantic_ai.models.groq import GroqModel
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.store.memory import InMemoryStore
 
 from ..utils.logging import get_logger, log_handoff, log_performance, log_agent_action, log_api_call, log_error
 from ..utils.logfire_config import AgentExecutionContext, HandoffContext, get_logfire_config
-from ..utils.langsmith_config import LangGraphExecutionContext, get_langsmith_config, log_graph_startup, log_graph_completion
 from ..utils.ollama_fallback import generate_intelligent_fallback
 from ..utils.datetime_context import format_datetime_context_for_agent, get_scheduling_context_for_agent
+from ..agents.supervisor import get_supervisor, SupervisorDecision
+from ..agents.manager import get_manager
 from config.settings import get_settings
 import time
 import os
@@ -29,104 +33,104 @@ import random
 import asyncio
 
 
-async def create_pydantic_agent(agent_name: str, model_name: str = "mistralai/mistral-7b-instruct:free") -> Agent:
+async def create_pydantic_agent(agent_name: str, model_name: str = None) -> Agent:
     """
-    Standardized PydanticAI agent creation with comprehensive Logfire tracing.
-    
+    Create PydanticAI agent using Groq as LLM provider.
+
     Args:
         agent_name: Name of the agent for logging
-        model_name: OpenRouter model to use
-        
+        model_name: Groq model to use (defaults to settings.groq.default_model)
+
     Returns:
         Configured PydanticAI Agent with Logfire instrumentation
-        
+
     Raises:
-        Exception: If agent creation fails
+        ValueError: If no valid Groq API key is found
     """
     logger = get_logger(f"{agent_name}_factory")
     settings = get_settings()
-    api_key = settings.apis.openrouter_key
-    
+
+    # Use Groq configuration
+    api_key = settings.groq.api_key
+    base_url = settings.groq.base_url
+    model_name = model_name or settings.groq.default_model
+
+    # Ensure GROQ_API_KEY is set in environment (required by PydanticAI GroqModel)
+    if api_key:
+        os.environ['GROQ_API_KEY'] = api_key
+
     # Logfire tracing for agent creation
     with AgentExecutionContext(agent_name, "agent_creation") as span:
-        
+
         # Validate API key
-        if not api_key or api_key == "your_openrouter_api_key_here" or api_key.strip() == "":
-            error_msg = f"No valid OpenRouter API key found for {agent_name}"
+        if not api_key or api_key.strip() == "":
+            error_msg = f"No valid Groq API key found for {agent_name}"
             logger.error(f"ERROR: {error_msg}")
             if span:
                 span.set_attribute("agent.creation_error", error_msg)
             raise ValueError(error_msg)
-        
-        # Enhanced debug logging with Logfire attributes
-        logger.info(f"DEBUG: Creating PydanticAI agent for {agent_name}")
-        logger.info(f"DEBUG: Model: {model_name}")
-        logger.info(f"DEBUG: API key length: {len(api_key)}")
-        logger.info(f"DEBUG: API key format valid: {api_key.startswith('sk-or-v1-')}")
-        
+
+        logger.info(f"Creating PydanticAI agent '{agent_name}' with Groq")
+        logger.info(f"Model: {model_name}, Base URL: {base_url}")
+
         if span:
             span.set_attributes({
                 "agent.name": agent_name,
                 "agent.model": model_name,
-                "agent.api_key_length": len(api_key),
-                "agent.api_key_valid_format": api_key.startswith('sk-or-v1-'),
+                "agent.provider": "groq",
+                "agent.base_url": base_url,
                 "agent.creation_stage": "setup"
             })
-        
+
         try:
-            # Create provider with Logfire tracking
-            provider = OpenRouterProvider(api_key=api_key)
-            logger.info(f"DEBUG: OpenRouterProvider created successfully: {type(provider)}")
-            if span:
-                span.set_attribute("agent.provider_created", True)
-            
-            # Create model with Logfire tracking
-            model = OpenAIModel(model_name, provider=provider)
-            logger.info(f"DEBUG: OpenAIModel created successfully: {type(model)}")
+            # Create Groq model directly using PydanticAI's native GroqModel
+            model = GroqModel(model_name)
+            logger.info(f"Groq model created: {model_name}")
+
             if span:
                 span.set_attribute("agent.model_created", True)
-            
-            # Create agent with Logfire tracking
+
+            # Create agent
             agent = Agent(model)
-            logger.info(f"DEBUG: Agent created successfully for {agent_name}: {type(agent)}")
+            logger.info(f"Agent '{agent_name}' created successfully with Groq")
+
             if span:
                 span.set_attributes({
                     "agent.agent_created": True,
                     "agent.creation_success": True,
                     "agent.creation_stage": "completed"
                 })
-            
-            # Log successful agent creation to Logfire
+
             log_agent_action(
                 agent_name=agent_name,
                 action="agent_created",
                 details={
                     "model": model_name,
-                    "provider": "OpenRouter",
+                    "provider": "groq",
+                    "base_url": base_url,
                     "success": True
                 }
             )
-            
+
             return agent
-            
+
         except Exception as e:
             error_msg = f"Failed to create PydanticAI agent for {agent_name}: {e}"
             logger.error(f"ERROR: {error_msg}")
-            
+
             if span:
                 span.set_attributes({
                     "agent.creation_success": False,
                     "agent.creation_error": str(e),
                     "agent.creation_stage": "failed"
                 })
-            
-            # Log failed agent creation to Logfire
+
             log_error(e, context={
                 "agent_name": agent_name,
                 "model_name": model_name,
                 "operation": "agent_creation"
             })
-            
+
             raise
 
 
@@ -156,12 +160,11 @@ class SwarmState(MessagesState):
 
 
 async def search_agent_node(state: SwarmState) -> dict:
-    """Nó do agente de busca: entende a intenção de busca usando PydanticAI."""
+    """Nó do agente de busca: entende a intenção de busca usando PydanticAI com Groq."""
     logger = get_logger("search_agent")
-    
-    # Instrumentação dupla: Logfire + LangSmith para rastreamento completo
-    with AgentExecutionContext("search_agent", "property_search") as logfire_span, \
-         LangGraphExecutionContext("swarm_graph", "search_agent", dict(state)) as langsmith_span:
+
+    # Logfire tracing
+    with AgentExecutionContext("search_agent", "property_search") as logfire_span:
         start_time = time.time()
         
         # 🔥 CORREÇÃO: Acessar mensagens corretamente no LangGraph
@@ -192,24 +195,23 @@ async def search_agent_node(state: SwarmState) -> dict:
         )
         
         settings = get_settings()
-        api_key = settings.apis.openrouter_key
+        groq_key = settings.groq.api_key
 
-        # Verificação corrigida da chave - não usar fallback se a chave existir
-        if not api_key or api_key == "your_openrouter_api_key_here" or api_key.strip() == "":
-            logger.warning("ERROR No valid OpenRouter key found. Using Ollama fallback.")
+        # Verificar chave Groq
+        if not groq_key or groq_key.strip() == "":
+            logger.warning("No valid Groq key found. Using Ollama fallback.")
             fallback_response = await generate_intelligent_fallback("search_agent", user_message, state.get("context", {}).get("property_context", {}), "mock")
-            
-            # Log do fallback
+
             log_agent_action(
                 agent_name="search_agent",
                 action="ollama_fallback_response",
-                details={"reason": "no_api_key", "response_length": len(fallback_response)}
+                details={"reason": "no_groq_key", "response_length": len(fallback_response)}
             )
-            
+
             return {"messages": [AIMessage(content=fallback_response)]}
 
         try:
-            logger.info(f"BRAIN Using search agent for property search in {data_mode.upper()} mode: '{user_message}' (Key: {api_key[:10]}...)")
+            logger.info(f"Using Groq search agent in {data_mode.upper()} mode: '{user_message[:50]}...'")
             
             # Try to get available properties from the system
             available_properties = []
@@ -303,14 +305,11 @@ SEARCH STRATEGY:
 
 Respond now as Alex, using the available property information to help with their search."""
 
-            # 🔥 Use standardized PydanticAI agent creation
-            primary_model = "mistralai/mistral-7b-instruct:free"
-            fallback_model = "mistralai/mistral-7b-instruct:free"
-            
+            # Create PydanticAI agent using Groq
             try:
-                agent = await create_pydantic_agent("search_agent", primary_model)
+                agent = await create_pydantic_agent("search_agent")
             except Exception as setup_error:
-                logger.error(f"ERROR: Failed to create search agent: {setup_error}")
+                logger.error(f"Failed to create search agent: {setup_error}")
                 raise
             
             # Enhanced Logfire tracing for LLM call
@@ -321,16 +320,16 @@ Respond now as Alex, using the available property information to help with their
                     
                     if llm_span:
                         llm_span.set_attributes({
-                            "llm.model": primary_model,
+                            "llm.model": settings.groq.default_model,
                             "llm.prompt_length": len(prompt),
-                            "llm.provider": "OpenRouter",
+                            "llm.provider": "Groq",
                             "llm.agent": "search_agent"
                         })
                     
                     response = await agent.run(prompt)
                     llm_duration = time.time() - llm_start
-                    logger.info(f"SUCCESS Primary model {primary_model} successful in {llm_duration:.2f}s")
-                    
+                    logger.info(f"Groq model successful in {llm_duration:.2f}s")
+
                     if llm_span:
                         llm_span.set_attributes({
                             "llm.success": True,
@@ -340,8 +339,8 @@ Respond now as Alex, using the available property information to help with their
                 except Exception as primary_error:
                     llm_duration = time.time() - llm_start
                     error_msg = str(primary_error)
-                    logger.error(f"ERROR Primary model {primary_model} failed after {llm_duration:.2f}s: {error_msg}")
-                    
+                    logger.error(f"Groq model failed after {llm_duration:.2f}s: {error_msg}")
+
                     if llm_span:
                         llm_span.set_attributes({
                             "llm.success": False,
@@ -349,52 +348,26 @@ Respond now as Alex, using the available property information to help with their
                             "llm.duration_seconds": llm_duration,
                             "llm.fallback_required": True
                         })
-                    
-                    # Enhanced error analysis for 401 specifically
-                    if "401" in error_msg or "No auth credentials found" in error_msg:
-                        logger.error(f"ERROR 401 Authentication Error Details:")
-                        logger.error(f"  - API key length: {len(api_key) if api_key else 0}")
-                        logger.error(f"  - API key prefix: {api_key[:15] if api_key else 'None'}...")
-                        logger.error(f"  - API key ends correctly: {api_key.endswith('bac9') if api_key else False}")
-                        logger.error(f"  - Agent type: {type(agent)}")
-                        
-                        if llm_span:
-                            llm_span.set_attribute("llm.error_type", "authentication_error")
-                    
+
                     # Log error to Logfire
                     log_error(primary_error, context={
                         "agent": "search_agent",
-                        "model": primary_model,
+                        "model": settings.groq.default_model,
                         "operation": "llm_inference",
                         "duration": llm_duration
                     })
-                    
-                    logger.info(f"RETRY Trying fallback model {fallback_model}")
-                    
-                    # Try fallback model using standardized creation
-                    with AgentExecutionContext("search_agent", "fallback_inference") as fallback_span:
-                        fallback_agent = await create_pydantic_agent("search_agent_fallback", fallback_model)
-                        
-                        if fallback_span:
-                            fallback_span.set_attributes({
-                                "llm.model": fallback_model,
-                                "llm.is_fallback": True,
-                                "llm.primary_error": error_msg
-                            })
-                        
-                        response = await fallback_agent.run(prompt)
-                        llm_duration = time.time() - llm_start
-                        logger.info(f"SUCCESS Fallback model {fallback_model} successful in {llm_duration:.2f}s")
-                        
-                        if fallback_span:
-                            fallback_span.set_attributes({
-                                "llm.success": True,
-                                "llm.duration_seconds": llm_duration,
-                                "llm.response_length": len(str(response.output)) if response.output else 0
-                            })
+
+                    logger.info("Trying Ollama fallback...")
+
+                    # Use Ollama fallback
+                    fallback_response = await generate_intelligent_fallback(
+                        "search_agent", user_message,
+                        state.get("context", {}).get("property_context", {}), "mock"
+                    )
+                    return {"messages": [AIMessage(content=fallback_response)]}
             
             log_api_call(
-                api_name="OpenRouter",
+                api_name="Groq",
                 endpoint="/chat/completions",
                 method="POST",
                 status_code=200,
@@ -453,12 +426,11 @@ Respond helpfully about property search in 2-3 sentences. Be friendly and ask wh
 
 
 async def property_agent_node(state: SwarmState) -> dict:
-    """Nó do agente de propriedades: analisa uma propriedade específica usando PydanticAI."""
+    """Nó do agente de propriedades: analisa uma propriedade específica usando PydanticAI com Groq."""
     logger = get_logger("property_agent")
-    
-    # Instrumentação dupla: Logfire + LangSmith para rastreamento completo
-    with AgentExecutionContext("property_agent", "property_analysis") as logfire_span, \
-         LangGraphExecutionContext("swarm_graph", "property_agent", dict(state)) as langsmith_span:
+
+    # Logfire tracing
+    with AgentExecutionContext("property_agent", "property_analysis") as logfire_span:
         
         # 🔥 CORREÇÃO: Acessar mensagens corretamente no LangGraph
         messages = state.messages if hasattr(state, 'messages') else state.get("messages", [])
@@ -478,20 +450,16 @@ async def property_agent_node(state: SwarmState) -> dict:
         data_mode = context.get("data_mode", "mock")  # Get data mode from context
         
         settings = get_settings()
-        api_key = settings.apis.openrouter_key
+        groq_key = settings.groq.api_key
 
-        # DEBUG: Log detailed API key information
-        logger.info(f"DEBUG: API key loaded - exists: {bool(api_key)}, length: {len(api_key) if api_key else 0}")
-        logger.info(f"DEBUG: API key prefix: {api_key[:15] if api_key else 'None'}...")
-
-        # Verificação corrigida da chave - não usar fallback se a chave existir
-        if not api_key or api_key == "your_openrouter_api_key_here" or api_key.strip() == "":
-            logger.warning("ERROR No valid OpenRouter key found. Using Ollama fallback.")
+        # Verificar chave Groq
+        if not groq_key or groq_key.strip() == "":
+            logger.warning("No valid Groq key found. Using Ollama fallback.")
             fallback_response = await generate_intelligent_fallback("property_agent", user_message, property_context, data_mode)
             return {"messages": [AIMessage(content=fallback_response)]}
-            
+
         try:
-            logger.info(f"BRAIN Using direct OpenRouter call for property analysis in {data_mode.upper()} mode: '{user_message}' (Key: {api_key[:10]}...)")
+            logger.info(f"Using Groq property agent in {data_mode.upper()} mode: '{user_message[:50]}...'")
             logger.info(f"PROPERTY Property context: {property_context.get('formattedAddress', 'No address') if property_context else 'No property context'}")
             
             # Create property details string
@@ -603,8 +571,8 @@ CONVERSATION FLOW:
 
 Respond now as Emma, using the property information provided above to answer the user's question directly and professionally."""
 
-            # 🔥 Use standardized PydanticAI agent creation
-            agent = await create_pydantic_agent("property_agent", "mistralai/mistral-7b-instruct:free")
+            # Create PydanticAI agent using Groq
+            agent = await create_pydantic_agent("property_agent")
             
             # Execute the analysis
             llm_start = time.time()
@@ -638,122 +606,112 @@ Respond helpfully in 2-3 sentences."""
                         logger.info(f"SUCCESS Retry with simpler prompt successful: {len(content)} chars")
                 
                 log_api_call(
-                    api_name="OpenRouter-PydanticAI",
+                    api_name="Groq",
                     endpoint="/chat/completions",
                     method="POST",
                     status_code=200,
                     duration=llm_duration
                 )
-                
-                logger.info(f"SUCCESS PydanticAI property agent call successful: {len(content)} chars")
-                logger.info(f"PREVIEW Response preview: {content[:100]}...")
+
+                logger.info(f"Property agent successful: {len(content)} chars")
                 return {"messages": [AIMessage(content=content)]}
-                
+
             except Exception as primary_error:
                 llm_duration = time.time() - llm_start
                 error_msg = str(primary_error)
-                logger.error(f"ERROR Property agent failed after {llm_duration:.2f}s: {error_msg}")
-                
-                # Enhanced error analysis for 401 specifically
-                if "401" in error_msg or "No auth credentials found" in error_msg:
-                    logger.error(f"ERROR 401 Authentication Error in Property Agent:")
-                    logger.error(f"  - API key length: {len(api_key) if api_key else 0}")
-                    logger.error(f"  - API key prefix: {api_key[:15] if api_key else 'None'}...")
-                    logger.error(f"  - Agent type: {type(agent)}")
-                
-                # Try fallback agent
-                logger.info("RETRY Trying fallback agent for property analysis")
-                try:
-                    fallback_agent = await create_pydantic_agent("property_agent_fallback", "mistralai/mistral-7b-instruct:free")
-                    response = await fallback_agent.run(prompt)
-                    content = str(response.output)
-                    llm_duration = time.time() - llm_start
-                    logger.info(f"SUCCESS Property agent fallback successful in {llm_duration:.2f}s")
-                    return {"messages": [AIMessage(content=content)]}
-                except Exception as fallback_error:
-                    logger.error(f"ERROR Fallback agent also failed: {fallback_error}")
-                    raise primary_error
+                logger.error(f"Property agent failed after {llm_duration:.2f}s: {error_msg}")
+
+                log_error(primary_error, context={
+                    "agent": "property_agent",
+                    "operation": "llm_inference",
+                    "duration": llm_duration
+                })
+
+                # Use Ollama fallback
+                logger.info("Using Ollama fallback for property analysis")
+                fallback_response = await generate_intelligent_fallback("property_agent", user_message, property_context, data_mode)
+                return {"messages": [AIMessage(content=fallback_response)]}
                 
         except Exception as e:
-            logger.error(f"ERROR Direct OpenRouter call failed for property agent: {e}")
-            logger.info("RETRY Falling back to Ollama intelligent response generator")
+            logger.error(f"Property agent failed: {e}")
             fallback_response = await generate_intelligent_fallback("property_agent", user_message, property_context, data_mode)
             return {"messages": [AIMessage(content=fallback_response)]}
 
 
 async def scheduling_agent_node(state: SwarmState) -> dict:
-    """Nó do agente de agendamento: agenda visitas usando OpenRouter direto."""
+    """Nó do agente de agendamento: agenda visitas usando PydanticAI com Groq."""
     logger = get_logger("scheduling_agent")
-    
-    # 🔥 CORREÇÃO: Acessar mensagens corretamente no LangGraph
-    messages = state.messages if hasattr(state, 'messages') else state.get("messages", [])
-    if not messages:
-        logger.warning("No messages in state for scheduling_agent")
-        return {"messages": [AIMessage(content="Olá! Sou Mike, especialista em agendamento. Como posso ajudá-lo?")]}
-    
-    # Extrair mensagem do usuário (compatível com dict e LangChain messages)
-    last_message = messages[-1]
-    if hasattr(last_message, 'content'):
-        user_message = last_message.content
-    else:
-        user_message = last_message.get("content", "")
-    
-    context = state.get("context", {})
-    property_context = context.get("property_context", {})
-    data_mode = context.get("data_mode", "mock")  # Get data mode from context
-    
-    settings = get_settings()
-    api_key = settings.apis.openrouter_key
 
-    # Verificação corrigida da chave - não usar fallback se a chave existir
-    if not api_key or api_key == "your_openrouter_api_key_here" or api_key.strip() == "":
-        logger.warning("ERROR No valid OpenRouter key found. Using Ollama fallback.")
-        fallback_response = await generate_intelligent_fallback("scheduling_agent", user_message, property_context, data_mode)
-        return {"messages": [AIMessage(content=fallback_response)]}
-        
-    try:
-        logger.info(f"BRAIN Using direct OpenRouter call for scheduling in {data_mode.upper()} mode: '{user_message}' (Key: {api_key[:10]}...)")
-        
-        # Create property details string for scheduling context
-        property_details = ""
-        if property_context:
-            # Format price safely
-            price_value = property_context.get('price', 'N/A')
-            if isinstance(price_value, (int, float)):
-                price_formatted = f"${price_value:,}/month"
-            else:
-                price_formatted = f"${price_value}/month"
-            
-            property_details = f"""
+    # Logfire tracing
+    with AgentExecutionContext("scheduling_agent", "appointment_scheduling") as logfire_span:
+
+        # Acessar mensagens corretamente no LangGraph
+        messages = state.messages if hasattr(state, 'messages') else state.get("messages", [])
+        if not messages:
+            logger.warning("No messages in state for scheduling_agent")
+            return {"messages": [AIMessage(content="Olá! Sou Mike, especialista em agendamento. Como posso ajudá-lo?")]}
+
+        # Extrair mensagem do usuário
+        last_message = messages[-1]
+        if hasattr(last_message, 'content'):
+            user_message = last_message.content
+        else:
+            user_message = last_message.get("content", "")
+
+        context = state.get("context", {})
+        property_context = context.get("property_context", {})
+        data_mode = context.get("data_mode", "mock")
+
+        settings = get_settings()
+        groq_key = settings.groq.api_key
+
+        # Verificar chave Groq
+        if not groq_key or groq_key.strip() == "":
+            logger.warning("No valid Groq key found. Using Ollama fallback.")
+            fallback_response = await generate_intelligent_fallback("scheduling_agent", user_message, property_context, data_mode)
+            return {"messages": [AIMessage(content=fallback_response)]}
+
+        try:
+            logger.info(f"Using Groq scheduling agent in {data_mode.upper()} mode: '{user_message[:50]}...'")
+
+            # Create property details string for scheduling context
+            property_details = ""
+            if property_context:
+                # Format price safely
+                price_value = property_context.get('price', 'N/A')
+                if isinstance(price_value, (int, float)):
+                    price_formatted = f"${price_value:,}/month"
+                else:
+                    price_formatted = f"${price_value}/month"
+
+                property_details = f"""
 PROPERTY FOR VIEWING:
 • Address: {property_context.get('formattedAddress', 'N/A')}
 • Price: {price_formatted}
 • Type: {property_context.get('propertyType', 'N/A')}
 • Bedrooms: {property_context.get('bedrooms', 'N/A')} | Bathrooms: {property_context.get('bathrooms', 'N/A')}
 """
-        else:
-            property_details = "Property details will be confirmed upon scheduling."
+            else:
+                property_details = "Property details will be confirmed upon scheduling."
 
-        # 🔥 Add conversation context awareness
-        is_first_message = len(messages) <= 1
-        conversation_info = ""
-        if not is_first_message:
-            conversation_info = f"""
+            # Conversation context awareness
+            is_first_message = len(messages) <= 1
+            if not is_first_message:
+                conversation_info = f"""
 CONVERSATION CONTEXT:
-- This is NOT the first message in the conversation (message #{len(messages)})
-- Continue the conversation naturally without greeting again
-- Build on previous context and maintain conversation flow
+- This is message #{len(messages)} in the conversation
+- Continue naturally without greeting again
 """
-        else:
-            conversation_info = """
+            else:
+                conversation_info = """
 CONVERSATION CONTEXT:
-- This is the first message in the conversation
-- You can start with a greeting and introduction
+- This is the first message
+- You can start with a greeting
 """
 
-        # Create comprehensive scheduling prompt with specialized datetime context
-        scheduling_datetime_context = get_scheduling_context_for_agent()
-        prompt = f"""You are Mike, a professional scheduling assistant for real estate property viewings. You help clients schedule visits efficiently and provide all necessary details.
+            # Create scheduling prompt with datetime context
+            scheduling_datetime_context = get_scheduling_context_for_agent()
+            prompt = f"""You are Mike, a professional scheduling assistant for real estate property viewings.
 
 {scheduling_datetime_context}
 
@@ -764,110 +722,49 @@ CONVERSATION CONTEXT:
 User's Request: "{user_message}"
 
 INSTRUCTIONS:
-1. Always reference the specific property address when discussing the viewing
-2. Use the CONTEXTO TEMPORAL ATUAL section above to understand dates accurately
-3. When user says "tomorrow", check what date tomorrow actually is from the context above
-4. When user says "next week", refer to the specific dates in the context above
-5. Provide specific available time slots with EXACT DATES (suggest 2-3 options within the next 3-5 days)
-6. Mention what to bring (ID, proof of income if applicable)
-7. Specify viewing duration (typically 30-45 minutes)
-8. Keep responses concise but complete (2-4 sentences)
-9. Use appropriate emojis to make responses engaging
-10. Always end with a clear next step or confirmation request
-11. Be professional but friendly and accommodating
-12. IMPORTANT: If this is NOT the first message, do NOT greet the user again
+1. Reference the property address when discussing viewings
+2. Use the datetime context above for accurate dates
+3. Provide 2-3 specific time slots within the next 3-5 days
+4. Mention what to bring (ID, proof of income if applicable)
+5. Specify viewing duration (30-45 minutes)
+6. Be professional but friendly
+7. End with a clear next step or confirmation request
 
-AVAILABLE TIME SUGGESTIONS:
+AVAILABLE TIMES:
 - Weekdays: 10:00 AM, 2:00 PM, 4:00 PM
 - Weekends: 9:00 AM, 11:00 AM, 1:00 PM, 3:00 PM
 
-CONVERSATION FLOW:
-- Confirm the property they want to view
-- Offer specific time slots
-- Explain what to expect during the visit
-- Provide contact information for any changes
-- Maintain momentum toward booking confirmation
+Respond now as Mike, helping them schedule their property viewing."""
 
-Respond now as Mike, helping them schedule their property viewing professionally and efficiently."""
+            # Create PydanticAI agent using Groq
+            agent = await create_pydantic_agent("scheduling_agent")
 
-        # 🔥 Use standardized PydanticAI agent creation
-        try:
-            agent = await create_pydantic_agent("scheduling_agent", "mistralai/mistral-7b-instruct:free")
-            
             # Execute the scheduling analysis
             llm_start = time.time()
-            logger.info(f"DEBUG: About to call scheduling agent with prompt length: {len(prompt)}")
-            
-            try:
-                response = await agent.run(prompt)
-                llm_duration = time.time() - llm_start
-                logger.info(f"SUCCESS Scheduling agent successful in {llm_duration:.2f}s")
-                
-                content = str(response.output)
-                
-                # Check if response is too short or truncated
-                if len(content.strip()) < 10:
-                    logger.warning(f"WARNING Scheduling response too short ({len(content)} chars): '{content}'")
-                    # Try with simpler prompt with datetime context
-                    scheduling_datetime_context = get_scheduling_context_for_agent()
-                    simple_prompt = f"""You are Mike, a scheduling assistant. A user said: "{user_message}"
+            response = await agent.run(prompt)
+            llm_duration = time.time() - llm_start
+            logger.info(f"Scheduling agent successful in {llm_duration:.2f}s")
 
-{scheduling_datetime_context}
-                    
-Property: {property_context.get('formattedAddress', 'Property address available')}
+            content = str(response.output)
 
-Suggest 2-3 viewing times and ask what works best for them."""
-                    
-                    retry_response = await agent.run(simple_prompt)
-                    retry_content = str(retry_response.output)
-                    if len(retry_content.strip()) > len(content.strip()):
-                        content = retry_content
-                        logger.info(f"SUCCESS Scheduling retry with simpler prompt successful: {len(content)} chars")
-                
-                log_api_call(
-                    api_name="OpenRouter-PydanticAI",
-                    endpoint="/chat/completions", 
-                    method="POST",
-                    status_code=200,
-                    duration=llm_duration
-                )
-                
-                logger.info(f"SUCCESS PydanticAI scheduling agent call successful: {len(content)} chars")
-                logger.info(f"PREVIEW Scheduling response preview: {content[:100]}...")
-                return {"messages": [AIMessage(content=content)]}
-                
-            except Exception as primary_error:
-                llm_duration = time.time() - llm_start
-                error_msg = str(primary_error)
-                logger.error(f"ERROR Scheduling agent failed after {llm_duration:.2f}s: {error_msg}")
-                
-                # Enhanced error analysis for 401 specifically
-                if "401" in error_msg or "No auth credentials found" in error_msg:
-                    logger.error(f"ERROR 401 Authentication Error in Scheduling Agent:")
-                    logger.error(f"  - API key length: {len(api_key) if api_key else 0}")
-                    logger.error(f"  - API key prefix: {api_key[:15] if api_key else 'None'}...")
-                    logger.error(f"  - Agent type: {type(agent)}")
-                
-                # Try fallback agent
-                logger.info("RETRY Trying fallback agent for scheduling")
-                fallback_agent = await create_pydantic_agent("scheduling_agent_fallback", "mistralai/mistral-7b-instruct:free")
-                
-                response = await fallback_agent.run(prompt)
-                content = str(response.output)
-                llm_duration = time.time() - llm_start
-                logger.info(f"SUCCESS Scheduling agent fallback successful in {llm_duration:.2f}s")
-                
-                return {"messages": [AIMessage(content=content)]}
-                
-        except Exception as setup_error:
-            logger.error(f"ERROR: Failed to create scheduling agent: {setup_error}")
-            raise
+            log_api_call(
+                api_name="Groq",
+                endpoint="/chat/completions",
+                method="POST",
+                status_code=200,
+                duration=llm_duration
+            )
 
-    except Exception as e:
-        logger.error(f"ERROR Direct OpenRouter call failed for scheduling agent: {e}")
-        logger.info("RETRY Falling back to Ollama intelligent response generator")
-        fallback_response = await generate_intelligent_fallback("scheduling_agent", user_message, property_context, data_mode)
-        return {"messages": [AIMessage(content=fallback_response)]}
+            return {"messages": [AIMessage(content=content)]}
+
+        except Exception as e:
+            logger.error(f"Scheduling agent failed: {e}")
+            log_error(e, context={
+                "agent": "scheduling_agent",
+                "operation": "llm_inference"
+            })
+            fallback_response = await generate_intelligent_fallback("scheduling_agent", user_message, property_context, data_mode)
+            return {"messages": [AIMessage(content=fallback_response)]}
 
 
 def route_message(state: SwarmState) -> Literal["search_agent", "property_agent", "scheduling_agent", END]:
@@ -1163,44 +1060,110 @@ class SwarmOrchestrator:
     
     async def process_message(self, message: Dict[str, Any], config: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Processar mensagem através do swarm com agentes inteligentes e memória.
-        
+        Processar mensagem através do swarm com agentes inteligentes, memória e supervisão.
+
+        O Supervisor avalia TODA resposta antes de enviar ao usuário.
+        O Manager fornece insights em tempo real ao Supervisor.
+
         Args:
             message: Mensagem do usuário
             config: Configuração com thread_id para memória persistente
-            
+
         Returns:
-            Resposta processada pelo swarm
+            Resposta processada e validada pelo Supervisor
         """
         start_time = time.time()
-        
+
         try:
-            self.logger.info(f"AGENT Processing message with intelligent agents: {message}")
-            
-            # 🔥 NOVO: Usar config com thread_id para memória persistente
+            self.logger.info(f"Processing message with intelligent agents: {message}")
+
+            # Usar config com thread_id para memória persistente
             if config:
-                self.logger.info(f"BRAIN Using persistent memory with thread_id: {config.get('configurable', {}).get('thread_id')}")
+                self.logger.info(f"Using persistent memory with thread_id: {config.get('configurable', {}).get('thread_id')}")
                 result = await self.graph.ainvoke(message, config)
             else:
-                # Fallback para compatibilidade - criar config padrão com thread_id
                 import uuid
                 default_config = {
                     "configurable": {
                         "thread_id": f"default-{uuid.uuid4().hex[:8]}"
                     }
                 }
-                self.logger.info(f"BRAIN No config provided, using default thread_id: {default_config['configurable']['thread_id']}")
                 result = await self.graph.ainvoke(message, default_config)
-            
-            # Calcular tempo de execução
+
+            # === SUPERVISOR EVALUATION ===
+            # Get the agent's response
+            agent_response = ""
+            if result.get("messages"):
+                last_msg = result["messages"][-1]
+                agent_response = last_msg.content if hasattr(last_msg, 'content') else str(last_msg)
+
+            # Get user query from input
+            user_query = ""
+            if message.get("messages"):
+                first_msg = message["messages"][0]
+                user_query = first_msg.content if hasattr(first_msg, 'content') else str(first_msg.get("content", ""))
+
+            # Get Manager insights
+            manager = get_manager()
+            manager_recommendations = await manager.get_supervisor_recommendations()
+            manager_insights = [r.message for r in manager_recommendations[:3]]
+
+            # Supervisor evaluates the response
+            supervisor = get_supervisor()
+
+            # Get manager insights for supervisor
+            if manager_insights:
+                await supervisor.get_manager_insights(manager_insights)
+
+            evaluation = await supervisor.evaluate_response(
+                agent_name=result.get("current_agent", "unknown"),
+                response=agent_response,
+                user_query=user_query,
+                context={
+                    "property_context": result.get("context", {}).get("property_context"),
+                    "conversation_length": len(result.get("messages", []))
+                }
+            )
+
+            self.logger.info(f"Supervisor decision: {evaluation.decision.value} (score: {evaluation.score:.2f})")
+
+            # Handle supervisor decision
+            if evaluation.decision == SupervisorDecision.REVISE:
+                self.logger.warning(f"Supervisor requested revision. Issues: {evaluation.issues}")
+                # For now, we still return the response but log the issues
+                # In a production system, we could loop back to the agent
+                log_agent_action(
+                    agent_name="supervisor",
+                    action="revision_requested",
+                    details={
+                        "issues": evaluation.issues,
+                        "score": evaluation.score
+                    }
+                )
+            elif evaluation.decision == SupervisorDecision.ESCALATE:
+                self.logger.error(f"Supervisor escalated. Reason: {evaluation.reasoning}")
+                log_agent_action(
+                    agent_name="supervisor",
+                    action="escalated",
+                    details={"reasoning": evaluation.reasoning}
+                )
+
+            # Add supervisor metadata to result
+            result["supervisor_evaluation"] = {
+                "decision": evaluation.decision.value,
+                "score": evaluation.score,
+                "issues": evaluation.issues
+            }
+
+            # Calculate execution time
             execution_time = time.time() - start_time
             log_performance("swarm_message_processing", execution_time)
-            
-            self.logger.info(f"SUCCESS SwarmOrchestrator completed in {execution_time:.2f}s")
+
+            self.logger.info(f"SwarmOrchestrator completed in {execution_time:.2f}s (Supervisor: {evaluation.decision.value})")
             return result
-            
+
         except Exception as e:
-            self.logger.error(f"ERROR Error processing message: {e}")
+            self.logger.error(f"Error processing message: {e}")
             import traceback
             self.logger.error(f"Full traceback: {traceback.format_exc()}")
             raise

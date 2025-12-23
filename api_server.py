@@ -197,14 +197,17 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000", 
+        "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8000",
-        "http://127.0.0.1:8000"
+        "http://127.0.0.1:8000",
+        "http://localhost:5173",  # Vite default port
+        "http://127.0.0.1:5173",
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Incluir dashboard de observabilidade
@@ -1016,7 +1019,7 @@ if __name__ == "__main__":
         "api_server:app",
         host="127.0.0.1",
         port=8000,
-        reload=True,
+        reload=False,  # Disabled to prevent DuckDB lock issues
         log_level="info",
         env_file=".env"  # Forçar o carregamento do arquivo .env
     ) 

@@ -11,7 +11,7 @@ from datetime import datetime, date, time, timedelta
 from typing import Dict, Any, List, Optional, Annotated
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.groq import GroqModel
 
 from langgraph.types import Command
 from langgraph.graph import MessagesState
@@ -137,27 +137,20 @@ class SchedulingAgent:
         
         # Configurar modelo OpenRouter
         try:
-            from pydantic_ai.models.openai import OpenAIModel
-            from pydantic_ai.providers.openrouter import OpenRouterProvider
-            
-            # Obter chave via settings (centralizado)
-            openrouter_key = self.settings.apis.openrouter_key or ""
-            
-            if openrouter_key and openrouter_key != "your_openrouter_api_key_here":
-                self.model = OpenAIModel(
-                    model_name=self.settings.models.scheduling_model,
-                    provider=OpenRouterProvider(api_key=openrouter_key)
-                )
-                self.logger.info(f"✅ Scheduling agent initialized with OpenRouter model: {self.settings.models.scheduling_model}")
+            groq_api_key = self.settings.groq.api_key or ""
+
+            if groq_api_key:
+                self.model = GroqModel(self.settings.models.scheduling_model)
+                self.logger.info(f"✅ Scheduling agent initialized with Groq model: {self.settings.models.scheduling_model}")
             else:
-                self.logger.warning("⚠️ No OpenRouter API key found, using test model")
+                self.logger.warning("⚠️ No Groq API key found, using test model")
                 self.model = 'test'  # Fallback for testing
-                
+
         except ImportError as e:
-            self.logger.warning(f"⚠️ OpenRouter dependencies not available: {e}, using test model")
+            self.logger.warning(f"⚠️ Groq dependencies not available: {e}, using test model")
             self.model = 'test'
         except Exception as e:
-            self.logger.error(f"❌ Error configuring OpenRouter: {e}, using test model")
+            self.logger.error(f"❌ Error configuring Groq: {e}, using test model")
             self.model = 'test'
         
         # Criar agente PydanticAI

@@ -6,6 +6,7 @@ by using a cleaner integration between LangGraph-Swarm and PydanticAI.
 """
 
 from typing import Dict, Any, List, Optional
+import os
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 from langchain_core.tools import tool
@@ -14,8 +15,7 @@ from langgraph.store.memory import InMemoryStore
 from langgraph.prebuilt import create_react_agent
 from langgraph_swarm import create_handoff_tool, create_swarm
 from pydantic_ai import Agent as PydanticAgent
-from pydantic_ai.models.openai import OpenAIModel
-from pydantic_ai.providers.openrouter import OpenRouterProvider
+from pydantic_ai.models.groq import GroqModel
 
 from ..utils.logging import get_logger, log_performance
 from ..utils.logfire_config import AgentExecutionContext
@@ -61,24 +61,25 @@ class FixedSwarmOrchestrator:
         self.logger.info("Fixed LangGraph-Swarm orchestrator initialized successfully")
     
     def _create_langchain_model(self) -> ChatOpenAI:
-        """Create ChatOpenAI model for LangGraph compatibility."""
+        """Create ChatOpenAI model for LangGraph compatibility using Groq."""
         try:
-            api_key = self.settings.apis.openrouter_key
-            
-            if not api_key or api_key == "your_openrouter_api_key_here":
-                raise ValueError("Valid OpenRouter API key required")
-            
+            api_key = self.settings.groq.api_key
+
+            if not api_key:
+                raise ValueError("Valid Groq API key required")
+
+            # Use Groq API via ChatOpenAI with OpenAI-compatible interface
             model = ChatOpenAI(
-                model="mistralai/mistral-7b-instruct:free",
+                model=self.settings.groq.default_model,
                 api_key=api_key,
-                base_url="https://openrouter.ai/api/v1",
+                base_url="https://api.groq.com/openai/v1",
                 temperature=0.1,
                 max_tokens=1000
             )
-            
-            self.logger.info("ChatOpenAI model created for LangGraph")
+
+            self.logger.info("ChatOpenAI model created for LangGraph with Groq")
             return model
-            
+
         except Exception as e:
             self.logger.error(f"Failed to create ChatOpenAI model: {e}")
             raise
@@ -86,10 +87,12 @@ class FixedSwarmOrchestrator:
     def _create_pydantic_search_agent(self) -> PydanticAgent:
         """Create PydanticAI search agent."""
         try:
-            api_key = self.settings.apis.openrouter_key
-            provider = OpenRouterProvider(api_key=api_key)
-            model = OpenAIModel("mistralai/mistral-7b-instruct:free", provider=provider)
-            
+            # Ensure GROQ_API_KEY is set in environment
+            if self.settings.groq.api_key:
+                os.environ['GROQ_API_KEY'] = self.settings.groq.api_key
+
+            model = GroqModel(self.settings.groq.default_model)
+
             agent = PydanticAgent(
                 model=model,
                 system_prompt="""You are Alex, a professional real estate search specialist.
@@ -98,16 +101,16 @@ Your role is to help clients find properties that match their specific needs and
 
 When users ask about property details like rent, pricing, or features:
 - Provide direct, factual answers based on available property information
-- Reference specific property details when available  
+- Reference specific property details when available
 - Be conversational but professional
 - Keep responses focused and relevant to the user's question
 
 Always stay in character as a real estate search specialist focused on the property market."""
             )
-            
-            self.logger.info("PydanticAI search agent created")
+
+            self.logger.info("PydanticAI search agent created with Groq")
             return agent
-            
+
         except Exception as e:
             self.logger.error(f"Failed to create PydanticAI search agent: {e}")
             raise
@@ -115,10 +118,12 @@ Always stay in character as a real estate search specialist focused on the prope
     def _create_pydantic_property_agent(self) -> PydanticAgent:
         """Create PydanticAI property agent."""
         try:
-            api_key = self.settings.apis.openrouter_key
-            provider = OpenRouterProvider(api_key=api_key)
-            model = OpenAIModel("mistralai/mistral-7b-instruct:free", provider=provider)
-            
+            # Ensure GROQ_API_KEY is set in environment
+            if self.settings.groq.api_key:
+                os.environ['GROQ_API_KEY'] = self.settings.groq.api_key
+
+            model = GroqModel(self.settings.groq.default_model)
+
             agent = PydanticAgent(
                 model=model,
                 system_prompt="""You are Emma, a professional real estate property expert.
@@ -134,10 +139,10 @@ When users ask about property details:
 
 Always provide factual, helpful property information. Never make up details about markets you don't have information about."""
             )
-            
-            self.logger.info("PydanticAI property agent created")
+
+            self.logger.info("PydanticAI property agent created with Groq")
             return agent
-            
+
         except Exception as e:
             self.logger.error(f"Failed to create PydanticAI property agent: {e}")
             raise
@@ -145,20 +150,22 @@ Always provide factual, helpful property information. Never make up details abou
     def _create_pydantic_scheduling_agent(self) -> PydanticAgent:
         """Create PydanticAI scheduling agent."""
         try:
-            api_key = self.settings.apis.openrouter_key
-            provider = OpenRouterProvider(api_key=api_key)
-            model = OpenAIModel("mistralai/mistral-7b-instruct:free", provider=provider)
-            
+            # Ensure GROQ_API_KEY is set in environment
+            if self.settings.groq.api_key:
+                os.environ['GROQ_API_KEY'] = self.settings.groq.api_key
+
+            model = GroqModel(self.settings.groq.default_model)
+
             agent = PydanticAgent(
                 model=model,
                 system_prompt="""You are Mike, a professional scheduling assistant for real estate viewings.
 
 Help clients schedule property visits efficiently. Provide clear scheduling information and handle appointment management."""
             )
-            
-            self.logger.info("PydanticAI scheduling agent created")
+
+            self.logger.info("PydanticAI scheduling agent created with Groq")
             return agent
-            
+
         except Exception as e:
             self.logger.error(f"Failed to create PydanticAI scheduling agent: {e}")
             raise

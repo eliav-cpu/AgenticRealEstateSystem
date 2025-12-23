@@ -3,7 +3,22 @@
     "allow": [
       "mcp__ruv-swarm",
       "mcp__claude-flow@alpha",
-      "mcp__flow-nexus"
+      "mcp__flow-nexus",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(xargs:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(pip3 install:*)",
+      "Bash(pipx:*)",
+      "Bash(uv --version:*)",
+      "Bash(uv venv:*)",
+      "Bash(uv pip install:*)",
+      "Bash(chmod:*)",
+      "Bash(python:*)",
+      "Bash(timeout 15 python3:*)",
+      "Bash(timeout 10 python3:*)"
     ],
     "deny": []
   }

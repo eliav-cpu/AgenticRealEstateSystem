@@ -86,57 +86,97 @@ class PropertyDB:
     """
     DuckDB-based property storage for Mock mode only.
     Provides CRUD operations matching the RentCast API structure.
+
+    Uses read-only mode by default to allow multiple concurrent readers
+    when Uvicorn runs with --reload. Write operations temporarily use
+    a writable connection.
     """
-    
-    def __init__(self, db_path: str = "data/properties.duckdb"):
+
+    def __init__(self, db_path: str = "data/properties.duckdb", read_only: bool = True):
         """
         Initialize PropertyDB connection.
-        
+
         Args:
             db_path: Path to DuckDB database file
+            read_only: If True, opens in read-only mode (allows multiple concurrent readers).
+                      Set to False for write operations or migrations.
         """
         self.db_path = db_path
-        
+        self.read_only = read_only
+
         try:
             # Ensure data directory exists
             Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-            
+
             # Normalize path and ensure it's ASCII-safe
             normalized_path = os.path.abspath(db_path).replace('\\', '/')
-            
-            # Connect to DuckDB with normalized path
-            self.conn = duckdb.connect(normalized_path)
-            
-            # Create schema
-            create_property_schema(self.conn)
-            
-            logger.info(f"PropertyDB initialized at {normalized_path}")
-            
+            self.db_path = normalized_path
+
+            # If read-only mode, the database must already exist
+            if read_only and not os.path.exists(normalized_path):
+                logger.warning(f"Database does not exist at {normalized_path}, creating it first")
+                # Temporarily create database in write mode
+                temp_conn = duckdb.connect(normalized_path)
+                create_property_schema(temp_conn)
+                temp_conn.close()
+
+            # Connect to DuckDB with read-only mode if specified
+            self.conn = duckdb.connect(normalized_path, read_only=read_only)
+
+            # Create schema only if not in read-only mode
+            if not read_only:
+                create_property_schema(self.conn)
+
+            mode_str = "read-only" if read_only else "read-write"
+            logger.info(f"PropertyDB initialized at {normalized_path} ({mode_str} mode)")
+
         except UnicodeDecodeError as e:
             logger.error(f"Unicode encoding error in database path: {e}")
             logger.info("Attempting to create database with fallback path...")
-            
+
             # Try with a simpler path
             fallback_path = "properties.duckdb"
-            self.conn = duckdb.connect(fallback_path)
-            create_property_schema(self.conn)
+
+            # Handle read-only mode for fallback path
+            if read_only and not os.path.exists(fallback_path):
+                temp_conn = duckdb.connect(fallback_path)
+                create_property_schema(temp_conn)
+                temp_conn.close()
+
+            self.conn = duckdb.connect(fallback_path, read_only=read_only)
+            if not read_only:
+                create_property_schema(self.conn)
             self.db_path = fallback_path
-            logger.info(f"PropertyDB initialized with fallback path: {fallback_path}")
-            
+
+            mode_str = "read-only" if read_only else "read-write"
+            logger.info(f"PropertyDB initialized with fallback path: {fallback_path} ({mode_str} mode)")
+
         except Exception as e:
             logger.error(f"Failed to initialize PropertyDB: {e}")
             raise
+
+    def _get_write_connection(self):
+        """
+        Get a temporary write connection for write operations.
+        This allows read-only instances to perform write operations when needed.
+
+        Returns:
+            A writable DuckDB connection (must be closed after use)
+        """
+        return duckdb.connect(self.db_path, read_only=False)
     
     def insert_property(self, property_data: Dict[str, Any]) -> bool:
         """
         Insert a single property into the database.
-        
+        Uses a temporary write connection to avoid lock conflicts.
+
         Args:
             property_data: Property data in RentCast API format
-            
+
         Returns:
             True if successful, False otherwise
         """
+        write_conn = None
         try:
             # Extract fields from RentCast API structure
             params = [
@@ -170,22 +210,27 @@ class PropertyDB:
                 json.dumps(property_data.get("listingOffice", {})),
                 json.dumps(property_data.get("history", {}))
             ]
-            
-            self.conn.execute("""
+
+            # Use write connection for insert operation
+            write_conn = self._get_write_connection()
+            write_conn.execute("""
                 INSERT OR REPLACE INTO properties (
-                    id, formatted_address, address_line1, address_line2, city, state, 
-                    zip_code, county, latitude, longitude, property_type, bedrooms, 
-                    bathrooms, square_footage, lot_size, year_built, status, price, 
-                    listing_type, listed_date, removed_date, created_date, last_seen_date, 
+                    id, formatted_address, address_line1, address_line2, city, state,
+                    zip_code, county, latitude, longitude, property_type, bedrooms,
+                    bathrooms, square_footage, lot_size, year_built, status, price,
+                    listing_type, listed_date, removed_date, created_date, last_seen_date,
                     days_on_market, mls_name, mls_number, listing_agent, listing_office, history
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, params)
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error inserting property {property_data.get('id', 'unknown')}: {e}")
             return False
+        finally:
+            if write_conn:
+                write_conn.close()
     
     def search_properties(self, criteria: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
@@ -369,14 +414,22 @@ class PropertyDB:
             return 0
     
     def clear_all_properties(self) -> bool:
-        """Clear all properties from database."""
+        """
+        Clear all properties from database.
+        Uses a temporary write connection to avoid lock conflicts.
+        """
+        write_conn = None
         try:
-            self.conn.execute("DELETE FROM properties")
+            write_conn = self._get_write_connection()
+            write_conn.execute("DELETE FROM properties")
             logger.info("All properties cleared from database")
             return True
         except Exception as e:
             logger.error(f"Error clearing properties: {e}")
             return False
+        finally:
+            if write_conn:
+                write_conn.close()
     
     def close(self) -> None:
         """Close database connection."""

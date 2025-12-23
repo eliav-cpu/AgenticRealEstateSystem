@@ -64,26 +64,42 @@ class DuckDBConfig(BaseSettings):
     backup_path: str = Field(default="data/backups/", description="Diretório para backups")
 
 
+class GroqConfig(BaseSettings):
+    """Configurações do Groq LLM Provider."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore"
+    )
+
+    api_key: str = Field(default="", alias="GROQ_API_KEY")
+    base_url: str = Field(default="https://api.groq.com/openai/v1")
+    default_model: str = Field(default="openai/gpt-oss-120b")
+
+
 class ModelConfig(BaseSettings):
     """Configurações de modelos LLM."""
-    
+
     model_config = SettingsConfigDict(
         env_prefix="LLM_",
         env_file=".env",
         case_sensitive=False,
         extra="ignore"  # Ignorar variáveis extras
     )
-    
-    # Configurações globais
-    provider: str = Field(default="openrouter")
-    default_model: str = Field(default="mistralai/mistral-7b-instruct:free")
-    temperature: float = Field(default=0.1, ge=0.0, le=2.0)
-    max_tokens: int = Field(default=2000, gt=0)
-    
-    # Configurações por agente
-    search_model: str = Field(default="mistralai/mistral-7b-instruct:free")
-    property_model: str = Field(default="mistralai/mistral-7b-instruct:free")
-    scheduling_model: str = Field(default="mistralai/mistral-7b-instruct:free")
+
+    # Configurações globais - usando Groq
+    provider: str = Field(default="groq")
+    default_model: str = Field(default="openai/gpt-oss-120b")
+    temperature: float = Field(default=0.3, ge=0.0, le=2.0)
+    max_tokens: int = Field(default=5000, gt=0)
+
+    # Configurações por agente - usando modelo Groq
+    search_model: str = Field(default="openai/gpt-oss-120b")
+    property_model: str = Field(default="openai/gpt-oss-120b")
+    scheduling_model: str = Field(default="openai/gpt-oss-120b")
+    supervisor_model: str = Field(default="openai/gpt-oss-120b")
+    manager_model: str = Field(default="openai/gpt-oss-120b")
 
 
 class DataLayerConfig(BaseSettings):
@@ -177,33 +193,28 @@ class SecurityConfig(BaseSettings):
 
 class ObservabilityConfig(BaseSettings):
     """Configurações de observabilidade."""
-    
+
     model_config = SettingsConfigDict(
         env_prefix="OBS_",
         env_file=".env",
         case_sensitive=False,
         extra="ignore"  # Ignorar variáveis extras
     )
-    
+
     # Logging
     log_level: str = Field(default="INFO")
     log_format: str = Field(default="json")
-    
+
     # Metrics
     metrics_enabled: bool = Field(default=True)
     metrics_port: int = Field(default=8090)
-    
+
     # Tracing
     tracing_enabled: bool = Field(default=True)
     jaeger_endpoint: Optional[str] = None
-    
-    # Logfire
+
+    # Logfire (mantido - integrado com PydanticAI)
     logfire_token: Optional[str] = Field(default=None, alias="LOGFIRE_TOKEN")
-    
-    # LangSmith
-    langsmith_api_key: Optional[str] = Field(default=None, alias="LANGSMITH_API_KEY")
-    langsmith_project: str = Field(default="agentic-real-estate", alias="LANGSMITH_PROJECT")
-    langsmith_endpoint: str = Field(default="https://api.smith.langchain.com", alias="LANGSMITH_ENDPOINT")
 
 
 class ResilienceConfig(BaseSettings):
@@ -248,26 +259,38 @@ class SwarmConfig(BaseSettings):
     context_window: int = Field(default=4000)
     context_overlap: int = Field(default=200)
     
-    # Agent-specific
+    # Agent-specific - usando modelo Groq
     agents: Dict[str, Dict[str, Any]] = Field(
         default_factory=lambda: {
             "search": {
-                "model": "mistralai/mistral-7b-instruct:free",
-                "temperature": 0.1,
-                "max_tokens": 2000,
+                "model": "openai/gpt-oss-120b",
+                "temperature": 0.3,
+                "max_tokens": 3000,
                 "priority": 1
             },
             "property": {
-                "model": "mistralai/mistral-7b-instruct:free", 
-                "temperature": 0.2,
-                "max_tokens": 3000,
+                "model": "openai/gpt-oss-120b",
+                "temperature": 0.3,
+                "max_tokens": 4000,
                 "priority": 2
             },
             "scheduling": {
-                "model": "mistralai/mistral-7b-instruct:free",
-                "temperature": 0.1,
-                "max_tokens": 1500,
+                "model": "openai/gpt-oss-120b",
+                "temperature": 0.2,
+                "max_tokens": 2000,
                 "priority": 3
+            },
+            "supervisor": {
+                "model": "openai/gpt-oss-120b",
+                "temperature": 0.2,
+                "max_tokens": 3000,
+                "priority": 0  # Highest priority
+            },
+            "manager": {
+                "model": "openai/gpt-oss-120b",
+                "temperature": 0.1,
+                "max_tokens": 4000,
+                "priority": 0
             }
         }
     )
@@ -294,6 +317,7 @@ class Settings(BaseSettings):
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
     redis: RedisConfig = Field(default_factory=RedisConfig)
     duckdb: DuckDBConfig = Field(default_factory=DuckDBConfig)
+    groq: GroqConfig = Field(default_factory=GroqConfig)
     models: ModelConfig = Field(default_factory=ModelConfig)
     apis: APIConfig = Field(default_factory=APIConfig)
     security: SecurityConfig = Field(default_factory=SecurityConfig)

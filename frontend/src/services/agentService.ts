@@ -171,7 +171,7 @@ class AgentService {
   constructor() {
     this.config = {
       mode: 'real',
-      api_base_url: 'http://localhost:8000/api/agent',
+      api_base_url: '/api/agent', // Use relative URL to go through Vite proxy
       enable_streaming: false,
       agent_personality: 'professional',
       language: 'en', // 🇺🇸 English by default

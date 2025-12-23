@@ -74,14 +74,9 @@ class ObservabilityConfig:
     langfuse_host: str = "https://cloud.langfuse.com"
     langfuse_enabled: bool = False
 
-    # Logfire
+    # Logfire (PydanticAI native)
     logfire_token: str = ""
     logfire_enabled: bool = False
-
-    # LangSmith
-    langsmith_api_key: str = ""
-    langsmith_project: str = "agentic-real-estate"
-    langsmith_endpoint: str = "https://api.smith.langchain.com"
 
 
 @dataclass
@@ -228,10 +223,7 @@ class ConfigManager:
                 langfuse_host=self._get_env("LANGFUSE_HOST", "https://cloud.langfuse.com"),
                 langfuse_enabled=bool(self._get_env("LANGFUSE_PUBLIC_KEY", "")),
                 logfire_token=self._get_env("LOGFIRE_TOKEN", ""),
-                logfire_enabled=bool(self._get_env("LOGFIRE_TOKEN", "")),
-                langsmith_api_key=self._get_env("LANGSMITH_API_KEY", ""),
-                langsmith_project=self._get_env("LANGSMITH_PROJECT", "agentic-real-estate"),
-                langsmith_endpoint=self._get_env("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
+                logfire_enabled=bool(self._get_env("LOGFIRE_TOKEN", ""))
             ),
 
             resilience=ResilienceConfig(

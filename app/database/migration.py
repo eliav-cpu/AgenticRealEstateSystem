@@ -480,8 +480,8 @@ def migrate_mock_to_duckdb(db_path: str = "data/properties.duckdb", force_reload
         True if migration successful, False otherwise
     """
     try:
-        # Initialize PropertyDB
-        property_db = PropertyDB(db_path)
+        # Initialize PropertyDB in write mode for migration
+        property_db = PropertyDB(db_path, read_only=False)
         
         # Check if data already exists
         existing_count = property_db.get_property_count()
@@ -540,8 +540,9 @@ def verify_migration(db_path: str = "data/properties.duckdb") -> bool:
         True if verification passed, False otherwise
     """
     try:
-        property_db = PropertyDB(db_path)
-        
+        # Use read-only mode for verification (no writes needed)
+        property_db = PropertyDB(db_path, read_only=True)
+
         # Test 1: Count properties
         count = property_db.get_property_count()
         logger.info(f"Total properties in database: {count}")

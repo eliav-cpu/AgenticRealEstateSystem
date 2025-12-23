@@ -49,12 +49,19 @@ class RentCastAPI:
         self.property_db = None
         if self.config.mode == APIMode.MOCK and DUCKDB_AVAILABLE:
             try:
-                self.property_db = PropertyDB("data/properties.duckdb")
+                # Initialize in read-only mode for concurrent access (Uvicorn --reload safe)
+                self.property_db = PropertyDB("data/properties.duckdb", read_only=True)
+
                 # Auto-migrate if database is empty
                 if self.property_db.get_property_count() == 0:
                     self.logger.info("Empty database detected - running auto-migration...")
+                    # Migration requires write access, so close read-only connection temporarily
+                    self.property_db.close()
                     migrate_mock_to_duckdb("data/properties.duckdb")
-                self.logger.info("DuckDB initialized for Mock mode")
+                    # Reconnect in read-only mode after migration
+                    self.property_db = PropertyDB("data/properties.duckdb", read_only=True)
+
+                self.logger.info("DuckDB initialized for Mock mode (read-only)")
             except Exception as e:
                 self.logger.error(f"Failed to initialize DuckDB for Mock mode: {e}")
                 self.property_db = None

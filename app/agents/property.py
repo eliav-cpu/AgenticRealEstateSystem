@@ -131,29 +131,24 @@ class PropertyAgent:
         self.settings = get_settings()
         self.logger = get_logger("property_agent")
         
-        # Configurar modelo OpenRouter usando configurações centralizadas
+        # Configurar modelo Groq usando configurações centralizadas
         try:
-            from pydantic_ai.models.openai import OpenAIModel
-            from pydantic_ai.providers.openrouter import OpenRouterProvider
-            
-            # Obter chave via settings (centralizado - sem load_dotenv aqui)
-            openrouter_key = self.settings.apis.openrouter_key or ""
-            
-            if openrouter_key and openrouter_key != "your_openrouter_api_key_here":
-                self.model = OpenAIModel(
-                    model_name=self.settings.models.property_model,
-                    provider=OpenRouterProvider(api_key=openrouter_key)
-                )
-                self.logger.info(f"✅ Property agent initialized with OpenRouter model: {self.settings.models.property_model}")
+            from pydantic_ai.models.groq import GroqModel
+
+            groq_api_key = self.settings.groq.api_key or ""
+
+            if groq_api_key:
+                self.model = GroqModel(self.settings.models.property_model)
+                self.logger.info(f"✅ Property agent initialized with Groq model: {self.settings.models.property_model}")
             else:
-                self.logger.warning("⚠️ No OpenRouter API key found, using test model")
+                self.logger.warning("⚠️ No Groq API key found, using test model")
                 self.model = 'test'  # Fallback for testing
-                
+
         except ImportError as e:
-            self.logger.warning(f"⚠️ OpenRouter dependencies not available: {e}, using test model")
+            self.logger.warning(f"⚠️ Groq dependencies not available: {e}, using test model")
             self.model = 'test'
         except Exception as e:
-            self.logger.error(f"❌ Error configuring OpenRouter: {e}, using test model")
+            self.logger.error(f"❌ Error configuring Groq: {e}, using test model")
             self.model = 'test'
         
         # Criar agente PydanticAI simples
