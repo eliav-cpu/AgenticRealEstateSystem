@@ -8,17 +8,32 @@ Use case: Visual quality review for slides, Canva decks, Figma masters, PPTX and
 
 This checklist turns visual judgment into a repeatable QA process.
 
-A slide is approved only when it passes brand, structure, readability, hierarchy and decision-logic checks.
+A slide is approved only when it passes brand, structure, readability, hierarchy, decision-logic and Premium Impact checks.
+
+## Approval standard
+
+A slide can be beautiful and still fail.
+
+A PRIME slide is approved only when it is:
+
+- beautiful
+- clear
+- controlled
+- useful
+- decision-oriented
+- visually leading
+- unmistakably PRIME
 
 ## 1. Brand fit
 
 | Test | Pass condition |
 |---|---|
-| Does the slide feel PRIME? | Institutional, premium, calm and structured |
+| Does the slide feel PRIME? | Institutional, premium, calm, structured and confident |
 | Does it avoid generic real estate design? | No brochure look, no stock layout, no loud sales style |
 | Does it use the correct color system? | Navy, Deep Blue, White, Graphite, Champagne in controlled ratio |
 | Does it use Heebo-style typography logic? | Large headline, clean hierarchy, short lines |
 | Does it include a recognizable PRIME component? | Card, KPI, trust ring, board, frame, timeline or process unit |
+| Does it include visible authority? | The slide feels led, not merely arranged |
 
 ## 2. Decision logic
 
@@ -28,8 +43,20 @@ A slide is approved only when it passes brand, structure, readability, hierarchy
 | Clear headline | Headline is a decision statement, not a section label |
 | The slide advances the journey | It builds trust, logic, product, proof, numbers, fit or next action |
 | No dead slide | Every slide has a reason to exist |
+| Bottom insight | Key slides include a clear conclusion or framing line |
 
-## 3. Layout quality
+## 3. Premium Impact
+
+| Test | Pass condition |
+|---|---|
+| One dominant focal point | Headline, KPI, image, card, column, seal or capsule leads the eye |
+| Typographic leadership | Main title is strong enough to feel like a brand statement |
+| Contrast | Clear dark/light, large/small or active/inactive hierarchy |
+| Active component | At least one object feels intentionally selected or leading |
+| No equal-volume layout | Objects do not all compete at the same weight |
+| Private Banking presence | Slide feels like investment-grade decision material, not decoration |
+
+## 4. Layout quality
 
 | Test | Pass condition |
 |---|---|
@@ -38,39 +65,44 @@ A slide is approved only when it passes brand, structure, readability, hierarchy
 | Object hierarchy | Main point, support and footnote are clearly separated |
 | Card consistency | Cards use consistent size, spacing, border and rhythm |
 | Balance | No side feels visually collapsed or overloaded |
+| Strong composition | Layout has intentional tension, not safe symmetry only |
 
-## 4. Typography
+## 5. Typography
 
 | Test | Pass condition |
 |---|---|
-| H1 strength | Main title is large and dominant |
+| H1 strength | Main title is large, bold and dominant |
+| Decision title | Title frames a conclusion, not just a topic |
 | Line length | Hebrew lines remain short and readable |
 | Text density | Screen copy is minimal, explanation moves to speaker notes |
 | RTL alignment | Hebrew is right aligned by default |
 | Numbers | Numbers are clear and not visually confusing inside Hebrew text |
 
-## 5. Color and contrast
+## 6. Color and contrast
 
 | Test | Pass condition |
 |---|---|
 | Color ratio | Approx. 70 light, 20 dark, 10 accent |
-| CTA Blue | Used only for action or active highlight |
+| CTA Blue | Used only for action, active highlight or one decision marker |
 | Champagne | Used as subtle premium accent only |
 | Contrast | Text is readable at presentation distance |
 | No shiny gold | Avoid metallic effects and decorative gold overload |
+| Color hierarchy | Color tells the viewer what matters first |
 
-## 6. Component review
+## 7. Component review
 
 | Component | Required quality |
 |---|---|
-| KPI Card | Big number, short label, optional source note |
-| Trust Card | Clear person/company/process proof |
+| KPI Card | Big number, short label, optional source note, strong hierarchy |
+| Trust Card | Clear person/company/process proof, not generic credibility text |
 | Comparison Board | Feels like a proof board, not spreadsheet |
 | Process Line | 4-6 steps, clean badges, one active emphasis |
 | Photo Slide | One image dominates, text is controlled |
 | CTA Slide | One next step, no pressure language |
+| PRIME Card | Rounded 18-28px, soft shadow, internal spacing, badge/state marker |
+| Circular element | Must function as trust ring, seal, KPI badge, step marker or decision marker |
 
-## 7. Content risk
+## 8. Content risk
 
 | Test | Pass condition |
 |---|---|
@@ -80,29 +112,41 @@ A slide is approved only when it passes brand, structure, readability, hierarchy
 | Risk-aware wording | Uses potential, thesis, benchmark, review, scenario |
 | Source status | Important numbers and claims are marked for review if needed |
 
-## 8. Scoring system
+## 9. Scoring system
 
 Score each category 1-5:
 
 1. Brand fit
 2. Decision logic
-3. Layout quality
-4. Typography
-5. Color and contrast
-6. Component quality
-7. Content risk
+3. Premium Impact
+4. Layout quality
+5. Typography
+6. Color and contrast
+7. Component quality
+8. Content risk
 
-Maximum: 35
+Maximum: 40
 
 Approval thresholds:
 
-- 31-35: Client ready candidate
-- 27-30: Strong, needs polish
-- 23-26: Working draft
-- below 23: Rebuild required
+- 38-40: Approved master candidate
+- 35-37: Client ready candidate after final polish
+- 31-34: Strong, needs polish
+- 27-30: Working draft
+- below 27: Rebuild required
 
-## Final rule
+## 10. Master slide approval rule
 
-A slide can be beautiful and still fail.
+A master slide must score 38/40 or higher.
 
-A PRIME slide is approved only when it is beautiful, clear, controlled, useful and decision-oriented.
+For King Tamar first master proof slide, target:
+
+95+ visual DNA fit.
+
+If a slide is clean but lacks impact, it is not approved.
+
+If a slide has impact but breaks PRIME restraint, it is not approved.
+
+The standard is:
+
+Quiet authority with visible power.
