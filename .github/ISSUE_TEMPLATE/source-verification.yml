@@ -1,0 +1,63 @@
+name: King Tamar Source Verification
+
+description: Use this template to verify numbers, market claims, regulatory claims or commercial claims before client use.
+
+title: "[Source Verification] "
+labels: ["king-tamar", "source-verification", "qa"]
+
+body:
+  - type: textarea
+    id: claim
+    attributes:
+      label: Claim to verify
+      description: Paste the exact claim or number.
+      placeholder: "Example: 32 floors, 278 apartments, 2029 handover, $150,000 residence permit threshold..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: claim_type
+    attributes:
+      label: Claim type
+      options:
+        - "Project fact"
+        - "Financial claim"
+        - "Regulatory claim"
+        - "Market / demand claim"
+        - "Tourism / city claim"
+        - "Developer claim"
+        - "Benchmark claim"
+        - "Marketing claim"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_source
+    attributes:
+      label: Current source, if any
+      description: Paste link, file name, slide, document reference or write דורש אימות.
+    validations:
+      required: true
+
+  - type: textarea
+    id: intended_use
+    attributes:
+      label: Intended client use
+      description: Where will this appear?
+      placeholder: "Client slide, sales playbook, Excel model, banner, FAQ, etc."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: qa
+    attributes:
+      label: Verification checklist
+      options:
+        - label: No client use until source is verified
+          required: true
+        - label: If source is missing, mark דורש אימות
+          required: true
+        - label: No guaranteed-return language
+          required: true
+        - label: Separate verified fact from inference
+          required: true
