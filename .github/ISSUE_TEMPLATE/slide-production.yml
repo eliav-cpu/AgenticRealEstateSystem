@@ -1,0 +1,86 @@
+name: King Tamar Slide Production
+
+description: Use this template for every King Tamar slide repair, rewrite, redesign or new variation.
+
+title: "[Slide] "
+labels: ["king-tamar", "slide", "production"]
+
+body:
+  - type: dropdown
+    id: slide_role
+    attributes:
+      label: Slide role in approved 16-slide flow
+      options:
+        - "1 — King Tamar: מגדל פרימיום בלב טביליסי"
+        - "2 — סיפור השקעה שמתחיל במקום הנכון"
+        - "3 — טביליסי: עיר שמתקדמת קדימה"
+        - "4 — עיר בצמיחה, כתובת במרכז העניינים"
+        - "5 — Archi: היזם שמוביל את הבנייה"
+        - "6 — מני בניש: החיבור הישראלי לגאורגיה"
+        - "7 — PRIME: הדרך הישראלית להיכנס נכון"
+        - "8 — גב חזק מאחורי החלטה גדולה"
+        - "9 — בין כיכר הגיבורים לגשר קינג תמר"
+        - "10 — 15 Merab Aleksidze: כתובת שקל לזכור"
+        - "11 — מורשת של מלכות בלב טביליסי"
+        - "12 — ריזורט אורבני בלב טביליסי"
+        - "13 — חוויית חיים שמעלה את רמת המגורים"
+        - "14 — King David כעוגן לפרימיום של העיר"
+        - "15 — King Tamar במספרים ברורים"
+        - "16 — מהסיפור לבחירת הדירה שלך"
+        - "Appendix / support slide"
+        - "Marketing/banner asset"
+        - "Internal-only training asset"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_slide
+    attributes:
+      label: Current slide / existing text
+      description: Paste current text or describe the uploaded slide.
+    validations:
+      required: true
+
+  - type: textarea
+    id: required_fix
+    attributes:
+      label: Required fix
+      description: What must be changed?
+      placeholder: "Fix title, strengthen cards, keep design, create Light version, etc."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: output_type
+    attributes:
+      label: Required output
+      options:
+        - "Copy only"
+        - "IMAGE_EDIT_PROMPT only"
+        - "Light version"
+        - "Dark version"
+        - "Light + Dark matched versions"
+        - "Clean version without final text"
+        - "Full + Clean versions"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: qa
+    attributes:
+      label: Mandatory QA
+      options:
+        - label: Client Copy V6 controls screen copy
+          required: true
+        - label: Sales Playbook V6 remains internal only
+          required: true
+        - label: Hebrew RTL and right alignment
+          required: true
+        - label: No invented numbers
+          required: true
+        - label: Unverified data marked דורש אימות
+          required: true
+        - label: No guaranteed-return language
+          required: true
+        - label: PRIME Visual DNA applied
+          required: true
