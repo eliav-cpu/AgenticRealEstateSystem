@@ -1,0 +1,15 @@
+{
+  "name": "exel-analytics",
+  "version": "0.1.0",
+  "description": "EXEL analytics plugin for spreadsheet models, KPI dashboards, data QA, scenario analysis, source mapping, and operating reports.",
+  "author": { "name": "EXEL" },
+  "keywords": ["exel", "analytics", "spreadsheet", "kpi", "dashboard", "simulator", "scenario-analysis", "data-qa"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "EXEL Analytics",
+    "shortDescription": "Turn real-estate data into verified models and dashboards",
+    "longDescription": "Owns spreadsheet and BI logic: simulators, payment models, KPI dashboards, source mapping, scenario analysis, formula QA, and reporting packs for management review.",
+    "category": "Analytics",
+    "capabilities": ["Interactive", "Read", "Write"]
+  }
+}
