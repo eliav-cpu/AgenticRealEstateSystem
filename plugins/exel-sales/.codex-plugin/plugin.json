@@ -1,0 +1,15 @@
+{
+  "name": "exel-sales",
+  "version": "0.1.0",
+  "description": "EXEL sales operating plugin for real-estate lead handling, meeting preparation, follow-up, objections, pipeline review, proposal readiness, and sales-team guidance.",
+  "author": { "name": "EXEL" },
+  "keywords": ["exel", "real-estate-sales", "pipeline", "meeting-prep", "follow-up", "objections", "proposal-readiness"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "EXEL Sales",
+    "shortDescription": "Move real-estate leads from inquiry to meeting and proposal",
+    "longDescription": "Handles real-estate sales workflows: lead context, meeting prep, follow-up, objection handling, pipeline review, proposal readiness, and salesperson guidance. Works only from available source context and marks missing data clearly.",
+    "category": "Sales",
+    "capabilities": ["Interactive", "Read", "Write"]
+  }
+}
