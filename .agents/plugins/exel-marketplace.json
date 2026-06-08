@@ -1,0 +1,51 @@
+{
+  "name": "exel-role-plugins",
+  "interface": {
+    "displayName": "EXEL Role Plugins",
+    "description": "Role-based operating plugins for EXEL: real estate sales, deal architecture, analytics, investor presentations, marketing, legal translation, and client journey operations."
+  },
+  "plugins": [
+    {
+      "name": "exel-sales",
+      "source": { "source": "local", "path": "./plugins/exel-sales" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Sales"
+    },
+    {
+      "name": "exel-deal-architect",
+      "source": { "source": "local", "path": "./plugins/exel-deal-architect" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Business"
+    },
+    {
+      "name": "exel-analytics",
+      "source": { "source": "local", "path": "./plugins/exel-analytics" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Analytics"
+    },
+    {
+      "name": "exel-investor-presentation",
+      "source": { "source": "local", "path": "./plugins/exel-investor-presentation" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Presentation"
+    },
+    {
+      "name": "exel-marketing",
+      "source": { "source": "local", "path": "./plugins/exel-marketing" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Marketing"
+    },
+    {
+      "name": "exel-legal-translation",
+      "source": { "source": "local", "path": "./plugins/exel-legal-translation" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Legal"
+    },
+    {
+      "name": "exel-client-journey",
+      "source": { "source": "local", "path": "./plugins/exel-client-journey" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_USE" },
+      "category": "Operations"
+    }
+  ]
+}
