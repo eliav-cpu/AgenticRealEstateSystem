@@ -1,0 +1,15 @@
+{
+  "name": "exel-deal-architect",
+  "version": "0.1.0",
+  "description": "EXEL deal architecture plugin for real-estate deal evaluation, commercial structure, contract review support, investor fit, risk mapping, and decision support.",
+  "author": { "name": "EXEL" },
+  "keywords": ["exel", "deal-architecture", "real-estate", "risk", "contracts", "pricing", "investor-fit"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "EXEL Deal Architect",
+    "shortDescription": "Examine and structure real-estate deals before client use",
+    "longDescription": "Supports deal examination, risk mapping, commercial logic, agreement review support, pricing structure, investor suitability, and decision framing. It does not replace legal advice and must work from sources.",
+    "category": "Business",
+    "capabilities": ["Interactive", "Read", "Write"]
+  }
+}
