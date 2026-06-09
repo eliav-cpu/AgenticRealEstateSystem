@@ -1,0 +1,15 @@
+{
+  "name": "exel-investor-presentation",
+  "version": "0.1.0",
+  "description": "EXEL investor presentation plugin for real-estate decks, slide narratives, visual QA, meeting flow, and transition from story to simulator.",
+  "author": { "name": "EXEL" },
+  "keywords": ["exel", "investor-presentation", "deck", "slides", "visual-qa", "real-estate", "meeting-flow"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "EXEL Investor Presentation",
+    "shortDescription": "Build investor-grade real-estate presentations",
+    "longDescription": "Owns the investor deck layer: narrative structure, slide copy, visual QA, source discipline, meeting-room readability, and transition from project story to simulator and apartment selection.",
+    "category": "Presentation",
+    "capabilities": ["Interactive", "Read", "Write"]
+  }
+}
