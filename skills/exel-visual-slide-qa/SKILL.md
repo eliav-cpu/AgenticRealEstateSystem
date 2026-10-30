@@ -50,3 +50,16 @@ For any change, record:
 - Screenshot comparison result (if available).
 - Copy/proof flags.
 - Status: verified / partially verified / requires human review.
+
+
+## Mandatory RTL composition gate — user-approved Wyndham reference
+RTL is a **spatial reading system**, not just CSS direction or right alignment.
+- Header logos must be arranged from RIGHT to LEFT in the exact approved sequence: X-only EXEL mark, D.Group mark, Wyndham Garden. Never substitute a full oversized EXEL wordmark.
+- Preserve the original photo grid and its reading order. For the Wyndham facilities montage, start with the project tile on the right in reading order, followed by spa, lobby and restaurant according to the approved reference. Each caption is right aligned within its own tile.
+- Treat the Hebrew title, subtitles, captions, footer and all labels as separate RTL regions; test each independently.
+- English brand names and mixed strings must be isolated with Unicode bidi handling, not visually reversed.
+- Never add panel borders, blue underlines, separators, footer ornaments, extra cards or background geometry unless specifically present in the approved reference or requested.
+- For this slide: preserve original project rendering, spa, lobby, restaurant, and original portrait; avoid invented amenities and replacement images.
+- Before image generation, write a COMPOSITION CONTRACT: exact regions, right-to-left order, locked assets, editable text zones, and allowed modifications.
+- If a generated image violates even one locked region, mark QA_FAILED and do not present it as the finished slide.
+- The screenshot must be compared against the original side by side at equal scale; assess direction, logos, tile order, borders, captions and text legibility.
