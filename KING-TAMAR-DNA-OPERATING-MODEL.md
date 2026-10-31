@@ -1,5 +1,9 @@
 # KING TAMAR / PRIME DNA OPERATING MODEL
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## System Status
 GitHub is connected as the operating layer for the PRIME / King Tamar production system.
 The project uses a production-line methodology, not a random tool warehouse.
@@ -57,15 +61,13 @@ Style:
 - Authority Dark
 
 Colors:
-- PRIME Navy #0F1E3A
-- Deep Blue #2F63C8
-- CTA Blue #4D8DF7
-- White #FFFFFF
-- Cloud #FAFAFB
-- Mist Gray #F3F4F6
-- Graphite #111827
-- Steel Gray #6B7280
-- Champagne Sand #D6C7A1
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 Typography:
 - Hebrew RTL
@@ -115,15 +117,13 @@ The two required versions:
 Use when: clean investor deck, website-like premium look, calm institutional presentation.
 
 Palette:
-- White #FFFFFF
-- Cloud #FAFAFB
-- Mist Gray #F3F4F6
-- Light Silver #E5E7EB
-- Graphite #111827
-- Steel Gray #6B7280
-- PRIME Navy #0F1E3A
-- Deep Blue #2F63C8
-- CTA Blue #4D8DF7
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 Design rules:
 - light grey / white background
@@ -138,14 +138,13 @@ Design rules:
 Use when: premium sales deck, dramatic investor presentation, luxury real-estate positioning.
 
 Palette:
-- PRIME Navy #0F1E3A
-- Deep Navy #071223
-- Graphite #111827
-- Black #05070A
-- White #FFFFFF
-- Champagne Sand #D6C7A1
-- Muted Gold #B89A5E
-- CTA Blue #4D8DF7 only as controlled accent
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 Design rules:
 - dark navy or black background

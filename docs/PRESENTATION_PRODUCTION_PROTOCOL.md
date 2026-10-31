@@ -1,5 +1,9 @@
 # PRIME / King Tamar Presentation Production Protocol
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Purpose
 This protocol turns every presentation tool into a controlled production system for PRIME / King Tamar.
 
@@ -28,7 +32,7 @@ The following layers must remain separate:
 
 1. `King_Tamar_Client_Copy_V6.md` — controls client-facing screen copy only.
 2. `King_Tamar_Sales_Playbook_V6.md` — controls internal salesperson guidance only.
-3. `PRIME_Visual_DNA.md` — controls visual language, colors, typography and RTL.
+3. `skills/exel-institutional-royal-slides/SKILL.md` — controls current EXEL visual language, colors, typography and RTL.
 4. `source-log.md` — controls verified facts, assumptions and data requiring verification.
 
 If old prompts, old slide text or previous outputs conflict with the V6 source files, the V6 source files win.
@@ -120,15 +124,13 @@ All visual outputs must follow:
 - no face alteration for real people
 
 Official colors:
-- PRIME Navy `#0F1E3A`
-- Deep Blue `#2F63C8`
-- CTA Blue `#4D8DF7`
-- White `#FFFFFF`
-- Cloud `#FAFAFB`
-- Mist Gray `#F3F4F6`
-- Graphite `#111827`
-- Steel Gray `#6B7280`
-- Champagne Sand `#D6C7A1`
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 ## Dual Colorway Rule
 For every strategic slide:

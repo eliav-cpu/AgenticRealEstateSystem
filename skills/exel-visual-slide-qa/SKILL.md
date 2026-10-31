@@ -1,11 +1,18 @@
 ---
 name: exel-visual-slide-qa
-description: Controlled visual refinement of existing EXEL/PRIME/Wyndham/King Tamar slides; preserve layouts, approved photographs, identities and truthful Hebrew.
+description: Controlled visual refinement of existing EXEL/Wyndham/King Tamar slides; preserve layouts, approved photographs, identities and truthful Hebrew.
+version: 1.1
 ---
-# EXEL Visual Slide OS — v1.0 (corrective layer)
+# EXEL Visual Slide OS — v1.1 (corrective layer)
 Parent: EXEL Strategic Questioning & Execution OS. Load project-specific source of truth and current user's most recent design preference first.
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Intent classifier
+- PALETTE_ONLY: explicitly requested recoloring. Lock all content, layout, photographs, faces, logos and icons. Override generic reduction and headline-rewrite defaults; recolor only approved design surfaces and editable text. Compare before/after at equal scale.
+
 - REPAIR: user's image exists and asks improve/sharpen/fix. Default: PRESERVE layout, images, number of sections, major proportions, identity, approved logo and style. Change only specified flaws. Never redesign.
 - REDESIGN: only when user explicitly asks for a new layout, new style or total rebuilding.
 - GENERATE: new slide from approved copy/visual references.

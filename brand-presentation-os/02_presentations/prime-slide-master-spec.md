@@ -1,5 +1,9 @@
 # PRIME Slide Master Spec
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 Status: Working
 Owner: PRIME Invest
 Use case: Visual source specification for Figma, PPTAgent, ppt-master, Canva and PowerPoint production
@@ -27,10 +31,10 @@ Use for:
 
 Visual rules:
 
-- PRIME Navy background
+- Institutional Navy background
 - large Heebo headline
 - minimal copy
-- thin Champagne or Deep Blue accents
+- thin Champagne or EXEL Blue accents
 - circular trust seal or subtle frame when relevant
 - strong whitespace
 
@@ -48,7 +52,7 @@ Use for:
 
 Visual rules:
 
-- White / Cloud / Mist Gray background
+- White / Pearl Gray background
 - Graphite headline
 - card-based structure
 - thin borders
@@ -76,21 +80,18 @@ Visual rules:
 
 ## Official colors
 
-- PRIME Navy: #0F1E3A
-- Deep Blue: #2F63C8
-- CTA Blue: #4D8DF7
-- White: #FFFFFF
-- Cloud: #FAFAFB
-- Mist Gray: #F3F4F6
-- Graphite: #111827
-- Steel Gray: #6B7280
-- Champagne Sand: #D6C7A1
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 ## Color ratio
 
-- 70 percent light / white / soft gray
-- 20 percent Navy / Graphite
-- 10 percent active blue / Champagne
+- Navy 24%, EXEL Blue 12%, Silver Gray 18%, Pearl Gray 24%, White 20%, Champagne 2%.
+- Conceptual design balance, not a pixel quota; excludes photography.
 
 ## Typography
 
