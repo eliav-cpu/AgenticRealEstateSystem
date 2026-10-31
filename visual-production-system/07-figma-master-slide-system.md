@@ -177,7 +177,7 @@ Use consistent spacing:
 Every strategic master should support:
 
 ### Light
-- White / Pearl Gray / Mist background
+- White / Pearl Gray background
 - Navy headline
 - Graphite body
 - blue micro accents

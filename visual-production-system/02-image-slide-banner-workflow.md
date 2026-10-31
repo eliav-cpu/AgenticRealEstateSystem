@@ -183,7 +183,7 @@ For strategic slides:
 - different atmosphere only
 
 ### Light Version
-- White / Pearl Gray / Mist base
+- White / Pearl Gray base
 - Navy heading
 - Graphite body
 - EXEL Blue accents

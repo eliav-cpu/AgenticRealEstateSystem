@@ -105,7 +105,7 @@ Design style:
 Private banking meets premium real estate. Clean, institutional, elegant, classic, controlled, not decorative.
 
 Brand colors:
-Institutional Navy #0A1E3F, EXEL Blue #0066FF, EXEL Blue #0066FF, White #FFFFFF, Pearl Gray #F3F4F5, Pearl Gray #F3F4F5, Graphite #394452, Supporting Graphite #394452, Royal Champagne #B7A47D.
+Institutional Navy #0A1E3F, EXEL Blue #0066FF, Silver Gray #D8DADD, Pearl Gray #F3F4F5, Pure White #FFFFFF, Royal Champagne #B7A47D, Supporting Graphite #394452.
 
 Composition:
 Use strong whitespace, premium cards, thin lines, subtle circular trust elements, clear right-side hierarchy, and clean empty text zones for Hebrew copy.

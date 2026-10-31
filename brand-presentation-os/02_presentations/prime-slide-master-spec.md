@@ -52,7 +52,7 @@ Use for:
 
 Visual rules:
 
-- White / Pearl Gray / Pearl Gray background
+- White / Pearl Gray background
 - Graphite headline
 - card-based structure
 - thin borders

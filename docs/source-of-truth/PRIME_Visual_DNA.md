@@ -34,12 +34,11 @@ The visual system must feel:
 - Supporting Graphite `#394452`
 
 ## Color Ratio
-- 70% white / light grey
-- 20% navy / graphite
-- 10% CTA blue / champagne
+- Navy 24%, EXEL Blue 12%, Silver Gray 18%, Pearl Gray 24%, White 20%, Champagne 2%.
+- Conceptual design balance, not a pixel quota; excludes photography.
 
 Champagne is a restrained premium accent only. Never use it as loud gold.
-EXEL Blue is for isolated emphasis, buttons and active states only.
+EXEL Blue is visible but controlled in consistent icons, focused lines, buttons and selected emphasis.
 
 ## Typography
 - Heebo-style Hebrew typography.
@@ -109,7 +108,7 @@ Required master templates:
 Every strategic slide must support two structurally identical variants:
 
 ### Light
-White / Pearl Gray / Mist background, navy typography, white cards, subtle champagne and controlled blue accents.
+White / Pearl Gray background, navy typography, white cards, subtle champagne and controlled blue accents.
 
 ### Dark
 Institutional Navy / Graphite background, white typography, subtle champagne accent, calm private-banking atmosphere.

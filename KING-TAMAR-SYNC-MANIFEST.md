@@ -139,11 +139,10 @@ Official PRIME / King Tamar colors:
 - Supporting Graphite `#394452`
 
 Usage ratio:
-- 70% white / light grey
-- 20% navy / graphite
-- 10% CTA blue / champagne
+- Navy 24%, EXEL Blue 12%, Silver Gray 18%, Pearl Gray 24%, White 20%, Champagne 2%.
+- Conceptual design balance, not a pixel quota; excludes photography.
 
-EXEL Blue is only for calls to action, active states and isolated emphasis.
+EXEL Blue is visible but controlled in consistent icons, focused lines, calls to action and selected emphasis.
 Royal Champagne is a restrained premium accent. It must not become a dominant gold surface.
 
 ## Typography Rule

@@ -87,7 +87,7 @@ A PRIME slide is approved only when it is:
 | Test | Pass condition |
 |---|---|
 | Color balance | V1.1 conceptual balance, excluding photographs; no pixel quota |
-| EXEL Blue | Used only for action, active highlight or one decision marker |
+| EXEL Blue | Visible but controlled; consistent icons, focused lines and selected emphasis |
 | Champagne | Used as subtle premium accent only |
 | Contrast | Text is readable at presentation distance |
 | No shiny gold | Avoid metallic effects and decorative gold overload |

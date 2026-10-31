@@ -305,7 +305,7 @@ If using the phrase השקעה בטוחה as a brand-style seal, it must be trea
 ## Prompt For Generating Banner Visual Without Final Text
 
 ```text
-Create a premium 4:5 vertical real-estate investment banner layout for Israeli investors. Private banking meets premium real estate. Use a clean PRIME visual system with large empty headline zone at the top, project image in the lower section, right-aligned empty text zones, small logo area at the bottom, subtle diagonal seal area under the logo, and clear CTA button zone. Use Institutional Navy #0A1E3F, White #FFFFFF, Pearl Gray #F3F4F5, EXEL Blue #0066FF and subtle Royal Champagne #B7A47D. Do not include final Hebrew text. No fake letters. No generic Canva look. Leave all text areas clean for live Hebrew typography in Canva.
+Create a premium 4:5 vertical real-estate investment banner layout for Israeli investors. Private banking meets premium real estate. Use the canonical EXEL V1.1 visual system with large empty headline zone at the top, project image in the lower section, right-aligned empty text zones, small logo area at the bottom, no added decorative seal, and a clear CTA button zone. Use Institutional Navy #0A1E3F, White #FFFFFF, Pearl Gray #F3F4F5, EXEL Blue #0066FF and subtle Royal Champagne #B7A47D. Do not include final Hebrew text. No fake letters. No generic Canva look. Leave all text areas clean for live Hebrew typography in Canva.
 ```
 
 ## Prompt For Correcting Existing Banner
