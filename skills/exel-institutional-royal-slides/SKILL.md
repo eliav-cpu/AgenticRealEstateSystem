@@ -1,8 +1,8 @@
 ---
 name: exel-institutional-royal-slides
 description: EXEL נדל״ן presentation design standard for institutional, trustworthy, restrained premium RTL slides; governs visual creation and repair, including X Magazine and X Mobile derivatives.
-version: 1.0-draft
-status: proposed-for-owner-approval
+version: 1.1
+status: approved-palette-2026-10-31
 ---
 # EXEL Institutional Royal — Presentation Design Skill
 
@@ -12,17 +12,19 @@ EXEL נדל״ן | חוכמת הנדל״ן. Brand promise language: רואים א
 ## 2. Visual north star
 Royal restraint; institutional authority; truthfulness; clarity; stability; premium editorial precision. Strong typography and spacing carry the prestige. No AI-looking glow, futuristic corridors, floating marble pedestals, shiny metallic gradients, excess glassmorphism, invented architectural images, decorative crowns, or gratuitous badges.
 
-## 3. Palette / design tokens
-- Institutional Navy #0A1E3F — headings, selective header, high-contrast text.
-- Pure White #FFFFFF — main paper/card surface.
-- Pearl Gray #F3F4F5 — calm neutral page background.
-- Silver Gray #D8DADD — hairline separators, quiet surfaces.
-- Royal Champagne #B7A47D — 1px/2px rules, rare single accent, restrained icon treatment; matte, never glossy gold.
-- EXEL Blue #0066FF — brand/action color, one focal emphasis per slide maximum.
-- Supporting graphite #394452 — secondary text when necessary.
-Color distribution for light information slides: white/pearl 70–85%, navy/graphite 10–25%, silver/champagne/blue combined 3–8%. These are recommended ranges, not pixel quotas. Large project photography is exempt from area calculation.
-Do not use Champagne and vivid blue as competing focal accents. Choose one accent per slide; other may be near-invisible or absent. Silver is not chrome.
-
+## 3. APPROVED palette — EXEL Modern Institutional Luxury V1.0 (owner-approved 2026-10-31)
+This palette supersedes the earlier Institutional Royal color defaults for ALL new EXEL presentation work. Do not silently revert to an older champagne-dominant variant.
+- Institutional Navy #0A1E3F — authoritative headlines, restrained header zones, important typography.
+- EXEL Blue #0066FF — deliberate visible brand tone in unified line icons, one or two thin focal rules, or a single geometric transition. Not an entire glowing background.
+- Silver Gray #D8DADD — restrained borders, separators, matte structural accents.
+- Pearl Gray #F3F4F5 — quiet neutral backgrounds and supporting surfaces.
+- Pure White #FFFFFF — cards, whitespace, content clarity.
+- Royal Champagne #B7A47D — tiny warm accent only (typically <=2% of non-photographic visual area); matte, optional, never competing with blue.
+- Supporting Graphite #394452 — secondary readable text.
+Suggested *visual balance* for non-photographic design surfaces: Navy 24%, Blue 12%, Silver 18%, Pearl 24%, White 20%, Champagne 2%. These are conceptual proportions, not pixel quotas; image areas are excluded. Prioritize readability and restraint over exact ratios.
+Blue must have a perceptible but controlled presence. Use a consistent blue icon family, not alternating gold and blue icons within one row. Champagne is warmth, not a second primary accent.
+Reference direction: the final owner-approved Wyndham Garden lobby slide with a blue EXEL header tone, cool silver/white cards, calm blue line icons, a restrained blue edge, and a nearly imperceptible champagne touch.
+Avoid: saturated blue gradients, excessive dark backgrounds, champagne frames on every card, glossy gold, AI glow, heavy 3D effects, excessive ornaments.
 ## 4. Typography and RTL
 Hebrew font Heebo; H1 Bold 30–42 pt for 16:9; subtitle Medium 18–24 pt; card titles Medium/Bold 16–22 pt; body Regular 14–20 pt; footnotes >=10 pt when physically readable. Exact sizes adapt to content and device. Right-align Hebrew text; use true bidi isolation for English brands, prices, dates, %, €, $, phone numbers and mixed scripts. RTL governs component order, step direction, arrow direction, charts and reading flow, not only paragraph alignment. Do not ask image generators to render final Hebrew: generate/edit photographic/background layers separately and overlay editable Heebo typography via PPTX, Figma or Adobe.
 
@@ -31,7 +33,7 @@ Hebrew font Heebo; H1 Bold 30–42 pt for 16:9; subtitle Medium 18–24 pt; card
 Modes:
 - Editorial Light (default): white/pearl dominant, navy text, thin silver rules.
 - Hybrid Photo (project/people): original licensed photograph or developer rendering + clean white/pearl text area, minimal navy.
-- Executive Dark (rare): navy cover/section divider, white text, a single champagne accent.
+- Executive Dark (rare): navy cover/section divider, white text, a restrained blue or optional champagne accent.
 Do not generate multiple modes automatically unless asked.
 
 ## 6. Slide categories
@@ -51,7 +53,7 @@ Never alter a real person's face or create a synthetic likeness as an official p
 2. Classify REPAIR, REFINE, REBUILD, GENERATE or MULTI-OUTPUT.
 3. Extract exact approved text and claims; mark unverified claims privately for QA.
 4. Write composition contract: fixed elements, editable elements, reading order, image provenance.
-5. Choose palette mode and ONE accent color.
+5. Choose palette mode; EXEL Blue is the controlled principal accent, champagne only a tiny optional secondary warmth.
 6. Build background/visual assets; overlay controlled Hebrew typography.
 7. Export editable PPTX plus PNG preview; optional clean background without final text when requested.
 8. Check at 100% and mobile size, compare to source and verify all content.
@@ -69,7 +71,7 @@ Never alter a real person's face or create a synthetic likeness as an official p
 - Any hard gate failure = QA_FAILED regardless of aesthetics.
 
 ## 10. Model prompt template
-"Produce a premium institutional EXEL real-estate investor slide, 16:9, with [approved content]. Mode [Editorial Light/Hybrid Photo/Executive Dark]. Preserve [locked images/logos/layout]. Use matte EXEL Navy #0A1E3F, White #FFFFFF, Pearl #F3F4F5, Silver #D8DADD, Royal Champagne #B7A47D sparingly and EXEL Blue #0066FF only for one active emphasis. Formal editorial grid, calm premium white space, no AI-glow, no shiny gold, no floating pedestals, no decorative clutter. Reserve clean zones for editable Heebo Hebrew RTL overlay. Do not invent claims, change actual faces, or fabricate project renderings."
+"Produce a premium institutional EXEL real-estate investor slide, 16:9, with [approved content]. Mode [Editorial Light/Hybrid Photo/Executive Dark]. Preserve [locked images/logos/layout]. Use matte EXEL Navy #0A1E3F, White #FFFFFF, Pearl #F3F4F5, Silver #D8DADD, EXEL Blue #0066FF as the controlled visible accent and Royal Champagne #B7A47D only as an optional tiny matte warmth detail. Formal editorial grid, calm premium white space, no AI-glow, no shiny gold, no floating pedestals, no decorative clutter. Reserve clean zones for editable Heebo Hebrew RTL overlay. Do not invent claims, change actual faces, or fabricate project renderings."
 
 ## 11. Acceptance standard
 An institutional slide should look credible without its logo. The strongest feature must be the clarity and integrity of the information, not a decorative effect. Verify real render output; a written skill is not proof of deployment.
