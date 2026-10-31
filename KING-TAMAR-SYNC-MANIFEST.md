@@ -1,5 +1,9 @@
 # KING TAMAR / PRIME SYNC MANIFEST
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Purpose
 This file is the central sync manifest for all PRIME / King Tamar related work across ChatGPT chats, GitHub repositories, slide systems, image workflows, sales scripts, research files and marketing assets.
 
@@ -126,23 +130,21 @@ Cards must feel like branded decision units, not generic rectangles.
 ## Official Color System
 
 Official PRIME / King Tamar colors:
-- PRIME Navy: #0F1E3A
-- Deep Blue: #2F63C8
-- CTA Blue: #4D8DF7
-- White: #FFFFFF
-- Cloud: #FAFAFB
-- Mist Gray: #F3F4F6
-- Graphite: #111827
-- Steel Gray: #6B7280
-- Champagne Sand: #D6C7A1
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 Usage ratio:
 - 70% white / light grey
 - 20% navy / graphite
 - 10% CTA blue / champagne
 
-CTA Blue is only for calls to action, active states and isolated emphasis.
-Champagne Sand is a restrained premium accent. It must not become a dominant gold surface.
+EXEL Blue is only for calls to action, active states and isolated emphasis.
+Royal Champagne is a restrained premium accent. It must not become a dominant gold surface.
 
 ## Typography Rule
 

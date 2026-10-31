@@ -1,5 +1,9 @@
 # 02 - Image / Slide / Banner Workflow
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Universal Workflow
 Every visual asset follows this sequence:
 
@@ -179,17 +183,17 @@ For strategic slides:
 - different atmosphere only
 
 ### Light Version
-- White / Cloud / Mist base
+- White / Pearl Gray / Mist base
 - Navy heading
 - Graphite body
-- CTA Blue accents
+- EXEL Blue accents
 - Champagne micro-accent
 
 ### Dark Version
-- PRIME Navy base
+- Institutional Navy base
 - White typography
 - Champagne micro-accent
-- Deep Blue active accent
+- EXEL Blue active accent
 - premium private-banking feeling
 
 ## Image Model Prompt Guardrails

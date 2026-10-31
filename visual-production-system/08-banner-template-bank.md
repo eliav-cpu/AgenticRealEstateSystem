@@ -1,5 +1,9 @@
 # 08 - Banner Template Bank
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Purpose
 This file defines reusable banner structures for PRIME / King Tamar and related real-estate campaigns.
 
@@ -301,7 +305,7 @@ If using the phrase השקעה בטוחה as a brand-style seal, it must be trea
 ## Prompt For Generating Banner Visual Without Final Text
 
 ```text
-Create a premium 4:5 vertical real-estate investment banner layout for Israeli investors. Private banking meets premium real estate. Use a clean PRIME visual system with large empty headline zone at the top, project image in the lower section, right-aligned empty text zones, small logo area at the bottom, subtle diagonal seal area under the logo, and clear CTA button zone. Use PRIME Navy #0F1E3A, White #FFFFFF, Mist Gray #F3F4F6, Deep Blue #2F63C8 and subtle Champagne Sand #D6C7A1. Do not include final Hebrew text. No fake letters. No generic Canva look. Leave all text areas clean for live Hebrew typography in Canva.
+Create a premium 4:5 vertical real-estate investment banner layout for Israeli investors. Private banking meets premium real estate. Use a clean PRIME visual system with large empty headline zone at the top, project image in the lower section, right-aligned empty text zones, small logo area at the bottom, subtle diagonal seal area under the logo, and clear CTA button zone. Use Institutional Navy #0A1E3F, White #FFFFFF, Pearl Gray #F3F4F5, EXEL Blue #0066FF and subtle Royal Champagne #B7A47D. Do not include final Hebrew text. No fake letters. No generic Canva look. Leave all text areas clean for live Hebrew typography in Canva.
 ```
 
 ## Prompt For Correcting Existing Banner

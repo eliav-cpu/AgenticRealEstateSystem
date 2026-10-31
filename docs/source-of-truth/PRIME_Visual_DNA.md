@@ -1,5 +1,9 @@
 # PRIME / King Tamar Visual DNA
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Classification
 Visual Source of Truth | PRIME / King Tamar | RTL Hebrew
 
@@ -21,15 +25,13 @@ The visual system must feel:
 3. Premium Photo Narrative
 
 ## Color System
-- PRIME Navy: `#0F1E3A`
-- Deep Blue: `#2F63C8`
-- CTA Blue: `#4D8DF7`
-- White: `#FFFFFF`
-- Cloud: `#FAFAFB`
-- Mist Gray: `#F3F4F6`
-- Graphite: `#111827`
-- Steel Gray: `#6B7280`
-- Champagne Sand: `#D6C7A1`
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 ## Color Ratio
 - 70% white / light grey
@@ -37,7 +39,7 @@ The visual system must feel:
 - 10% CTA blue / champagne
 
 Champagne is a restrained premium accent only. Never use it as loud gold.
-CTA Blue is for isolated emphasis, buttons and active states only.
+EXEL Blue is for isolated emphasis, buttons and active states only.
 
 ## Typography
 - Heebo-style Hebrew typography.
@@ -107,10 +109,10 @@ Required master templates:
 Every strategic slide must support two structurally identical variants:
 
 ### Light
-White / Cloud / Mist background, navy typography, white cards, subtle champagne and controlled blue accents.
+White / Pearl Gray / Mist background, navy typography, white cards, subtle champagne and controlled blue accents.
 
 ### Dark
-PRIME Navy / Graphite background, white typography, subtle champagne accent, calm private-banking atmosphere.
+Institutional Navy / Graphite background, white typography, subtle champagne accent, calm private-banking atmosphere.
 
 Do not redesign the slide. Duplicate the same structure and recolor.
 

@@ -1,5 +1,9 @@
 # AGENTS.md — PRIME / King Tamar Operating Rules
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Purpose
 This repository is the master operating layer for PRIME / King Tamar. Every agent, GPT, Codex session, NotebookLM workflow, image workflow, slide workflow, Excel workflow or automation must load this file first.
 
@@ -20,7 +24,7 @@ No task should stop at critique. Audit first, then produce a usable prompt, layo
 2. `docs/source-of-truth/King_Tamar_Sales_Playbook_V6.md` — internal salesperson guide only.
 3. `KING-TAMAR-DNA-OPERATING-MODEL.md` — master production and DNA rules.
 4. `KING-TAMAR-SYNC-MANIFEST.md` — cross-chat and cross-repo synchronization manifest.
-5. `docs/source-of-truth/PRIME_Visual_DNA.md` — visual and brand system.
+5. `skills/exel-institutional-royal-slides/SKILL.md` — current EXEL visual and brand authority (V1.1); historical PRIME DNA is not an active palette source.
 
 If an older prompt, old slide, old wording or previous chat conflicts with the V6 source files, the V6 files win.
 
@@ -122,15 +126,13 @@ All PRIME / King Tamar visual outputs must follow:
 - do not alter faces of real people
 
 Official colors:
-- PRIME Navy `#0F1E3A`
-- Deep Blue `#2F63C8`
-- CTA Blue `#4D8DF7`
-- White `#FFFFFF`
-- Cloud `#FAFAFB`
-- Mist Gray `#F3F4F6`
-- Graphite `#111827`
-- Steel Gray `#6B7280`
-- Champagne Sand `#D6C7A1`
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 ## Dual Colorway Rule
 For every strategic slide, prepare or specify two matched versions:

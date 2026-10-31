@@ -1,5 +1,9 @@
 # PRIME Visual QA Checklist
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 Status: Working
 Owner: PRIME Invest
 Use case: Visual quality review for slides, Canva decks, Figma masters, PPTX and Google Slides
@@ -30,9 +34,9 @@ A PRIME slide is approved only when it is:
 |---|---|
 | Does the slide feel PRIME? | Institutional, premium, calm, structured and confident |
 | Does it avoid generic real estate design? | No brochure look, no stock layout, no loud sales style |
-| Does it use the correct color system? | Navy, Deep Blue, White, Graphite, Champagne in controlled ratio |
+| Does it use the correct color system? | Navy, EXEL Blue, White, Graphite, Champagne in controlled ratio |
 | Does it use Heebo-style typography logic? | Large headline, clean hierarchy, short lines |
-| Does it include a recognizable PRIME component? | Card, KPI, trust ring, board, frame, timeline or process unit |
+| Are components source-led? | No forced cards, trust rings, frames or decoration; preserve approved icons |
 | Does it include visible authority? | The slide feels led, not merely arranged |
 
 ## 2. Decision logic
@@ -82,8 +86,8 @@ A PRIME slide is approved only when it is:
 
 | Test | Pass condition |
 |---|---|
-| Color ratio | Approx. 70 light, 20 dark, 10 accent |
-| CTA Blue | Used only for action, active highlight or one decision marker |
+| Color balance | V1.1 conceptual balance, excluding photographs; no pixel quota |
+| EXEL Blue | Used only for action, active highlight or one decision marker |
 | Champagne | Used as subtle premium accent only |
 | Contrast | Text is readable at presentation distance |
 | No shiny gold | Avoid metallic effects and decorative gold overload |

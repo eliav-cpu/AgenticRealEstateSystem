@@ -12,7 +12,7 @@ EXEL נדל״ן | חוכמת הנדל״ן. Brand promise language: רואים א
 ## 2. Visual north star
 Royal restraint; institutional authority; truthfulness; clarity; stability; premium editorial precision. Strong typography and spacing carry the prestige. No AI-looking glow, futuristic corridors, floating marble pedestals, shiny metallic gradients, excess glassmorphism, invented architectural images, decorative crowns, or gratuitous badges.
 
-## 3. APPROVED palette — EXEL Modern Institutional Luxury V1.0 (owner-approved 2026-10-31)
+## 3. APPROVED palette — EXEL Modern Institutional Luxury V1.1 (owner-approved 2026-10-31)
 This palette supersedes the earlier Institutional Royal color defaults for ALL new EXEL presentation work. Do not silently revert to an older champagne-dominant variant.
 - Institutional Navy #0A1E3F — authoritative headlines, restrained header zones, important typography.
 - EXEL Blue #0066FF — deliberate visible brand tone in unified line icons, one or two thin focal rules, or a single geometric transition. Not an entire glowing background.

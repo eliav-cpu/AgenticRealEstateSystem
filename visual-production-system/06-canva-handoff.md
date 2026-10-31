@@ -1,5 +1,9 @@
 # 06 - Canva Handoff
 
+## Current EXEL authority — V1.1 (2026-10-31)
+
+Read [the canonical EXEL skill](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/skills/exel-institutional-royal-slides/SKILL.md) and [the integration rules](https://github.com/eliav-cpu/AgenticRealEstateSystem/blob/main/docs/EXEL_VISUAL_AUTHORITY_V1_1.md) first. They override conflicting legacy brand/palette/ratio, forced components, automatic Light/Dark and repair instructions below. PRIME is historical context, not active EXEL branding. For **PALETTE_ONLY**, lock layout, copy, images, faces, logos, icons and editable text; change colors only. Project facts and flow remain project-specific. Prior versions are retained in Git history at `2481857`.
+
 ## Purpose
 This file defines how to move from idea, prompt, image or slide direction into an editable Canva asset.
 
@@ -91,15 +95,13 @@ Recommended slide hierarchy:
 ## PRIME Canva Color Rules
 
 Use:
-- PRIME Navy #0F1E3A
-- Deep Blue #2F63C8
-- CTA Blue #4D8DF7
-- White #FFFFFF
-- Cloud #FAFAFB
-- Mist Gray #F3F4F6
-- Graphite #111827
-- Steel Gray #6B7280
-- Champagne Sand #D6C7A1
+- Institutional Navy `#0A1E3F`
+- EXEL Blue `#0066FF`
+- Silver Gray `#D8DADD`
+- Pearl Gray `#F3F4F5`
+- Pure White `#FFFFFF`
+- Royal Champagne `#B7A47D`
+- Supporting Graphite `#394452`
 
 Avoid:
 - neon blue
@@ -148,7 +150,7 @@ Logo placement: bottom area, small and controlled
 Seal placement: under logo, diagonal and elegant
 Image direction: real project image, slightly lower, not dominant over headline
 Background direction: clean premium light background
-Color system: PRIME Navy, White, Mist Gray, controlled CTA Blue, subtle Champagne
+Color system: Institutional Navy, White, Pearl Gray, controlled EXEL Blue, subtle Champagne
 Typography rules: Heebo, RTL, sharp, large headline, mobile-readable
 Clean version needed: yes
 ```
